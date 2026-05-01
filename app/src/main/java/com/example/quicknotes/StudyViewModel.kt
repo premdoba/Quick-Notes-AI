@@ -32,7 +32,7 @@ class StudyViewModel : ViewModel() {
 
     private val generativeModel = GenerativeModel(
         modelName = "gemini-3-flash-preview",
-        apiKey = "AIzaSyD9BXwErkhE2ecZBB72k65hGJ_fPeFXAhg"
+        apiKey = "API_KEY"
     )
 
     fun generateStudyMaterial(input: String, educationLevel: String) {
