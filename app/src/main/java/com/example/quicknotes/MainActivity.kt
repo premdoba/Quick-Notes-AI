@@ -82,21 +82,20 @@ fun StudyConverterScreen(
     viewModel: StudyViewModel = viewModel()
 ) {
     var inputText by remember { mutableStateOf("") }
+    var educationLevel by remember { mutableStateOf("") }
+
     val uiState by viewModel.uiState.collectAsState()
 
     val context = androidx.compose.ui.platform.LocalContext.current
 
-    // Store selected PDF Uri here
     var selectedPdfUri by remember { mutableStateOf<Uri?>(null) }
 
-    // PDF picker launcher
     val pdfPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
         selectedPdfUri = uri
     }
 
-    // Extract PDF text when URI changes
     LaunchedEffect(selectedPdfUri) {
         selectedPdfUri?.let { uri ->
             val pdfText = extractPdfText(context, uri)
@@ -117,6 +116,15 @@ fun StudyConverterScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+
+        // NEW FIELD FOR EDUCATION LEVEL
+        OutlinedTextField(
+            value = educationLevel,
+            onValueChange = { educationLevel = it },
+            label = { Text("Your Education / Grade") },
+            placeholder = { Text("Example: 10th, 12th Science, BCA 2nd Year, Engineering 3rd Year") },
+            modifier = Modifier.fillMaxWidth()
+        )
 
         OutlinedTextField(
             value = inputText,
@@ -139,9 +147,11 @@ fun StudyConverterScreen(
 
         Button(
             onClick = {
-                viewModel.generateStudyMaterial(inputText)
+                viewModel.generateStudyMaterial(inputText, educationLevel)
             },
-            enabled = inputText.isNotBlank() && uiState !is UiState.Loading,
+            enabled = inputText.isNotBlank()
+                    && educationLevel.isNotBlank()
+                    && uiState !is UiState.Loading,
             modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(12.dp)
         ) {
@@ -179,6 +189,7 @@ fun StudyConverterScreen(
         }
     }
 }
+
 @Composable
 fun StudyResultsView(notes: StudyNotes) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -186,7 +197,6 @@ fun StudyResultsView(notes: StudyNotes) {
         ResultSection("❓ Important Questions", notes.importantQuestions)
         ResultSection("🎯 MCQs", notes.mcqs)
         ResultSection("🧠 Mindmap Summary", notes.mindmapSummary)
-        ResultSection("📅 Revision Plan", notes.revisionPlan)
     }
 }
 
@@ -223,11 +233,11 @@ fun InfoPlaceholder() {
         )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Input content to get:", fontWeight = FontWeight.Bold)
+            Text("Enter grade and input content to get:", fontWeight = FontWeight.Bold)
             BulletItem("Exam-focused short notes")
             BulletItem("High-probability questions")
             BulletItem("Practice MCQs")
-            BulletItem("Revision roadmap")
+            BulletItem("Mindmap summary")
         }
     }
 }

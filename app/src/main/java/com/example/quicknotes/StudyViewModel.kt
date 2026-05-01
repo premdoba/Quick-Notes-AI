@@ -15,8 +15,7 @@ data class StudyNotes(
     val shortNotes: String = "",
     val importantQuestions: String = "",
     val mcqs: String = "",
-    val mindmapSummary: String = "",
-    val revisionPlan: String = ""
+    val mindmapSummary: String = ""
 )
 
 sealed class UiState {
@@ -33,33 +32,63 @@ class StudyViewModel : ViewModel() {
 
     private val generativeModel = GenerativeModel(
         modelName = "gemini-3-flash-preview",
-        apiKey = "API_KEY"
+        apiKey = "AIzaSyD9BXwErkhE2ecZBB72k65hGJ_fPeFXAhg"
     )
 
-    fun generateStudyMaterial(input: String) {
+    fun generateStudyMaterial(input: String, educationLevel: String) {
         viewModelScope.launch {
             _uiState.value = UiState.Loading
 
             try {
                 val prompt = """
-                    Act as an expert educator. Based on the following content:
+                    You are an expert teacher.
+                    
+                    Student Education Level / Grade: "$educationLevel"
+                    
+                    Generate study material based on the below content in a way that matches the student's grade.
+                    Use easy language if grade is school level, and technical language if it is college level.
+                    
+                    
+                    IMPORTANT RULES:
+                    - Do not use markdown like **bold**, *, ###, etc.
+                    - Do not use emojis.
+                    - Do not add any extra headings.
+                    - Use ONLY plain text.
+                    - Follow the format strictly.
+                    - Keep spacing clean and readable.
+                    
+                    Content:
                     "$input"
 
-                    Please provide the following sections exactly using these headers:
+                    Return output ONLY in this exact format:
+
                     [SHORT NOTES]
-                    (Exam-focused notes)
+                    (Exam-focused notes according to grade)
+                    (write-here)
 
                     [QUESTIONS]
-                    (5 important questions)
+                    (5 important questions according to grade)
+                    1.
+                    2.
+                    3.
+                    4.
+                    5.
 
                     [MCQS]
-                    (5 MCQs with answers)
+                    1) Question
+                    A)
+                    B)
+                    C)
+                    D)
+                    Answer:
+                    
+                    (repeat 5)
 
                     [MINDMAP]
-                    (Bullet-point mindmap)
-
-                    [PLAN]
-                    (1-day and 7-day revision plan)
+                    (Bullet-point mindmap summary, make it simple language one line to remember what u have explained in short notes)
+                    - point
+                    - point
+                    - point
                 """.trimIndent()
 
                 val responseText = withContext(Dispatchers.IO) {
@@ -76,7 +105,7 @@ class StudyViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e("GEMINI_ERROR", "Gemini API Failed", e)
                 _uiState.value = UiState.Error(
-                    e.localizedMessage ?: "Something went wrong while generating notes."
+                    e.localizedMessage ?: "Something went wrong while generating notes. Please try again after some time."
                 )
             }
         }
@@ -93,8 +122,7 @@ class StudyViewModel : ViewModel() {
             shortNotes = safeExtract(text, "[SHORT NOTES]", "[QUESTIONS]"),
             importantQuestions = safeExtract(text, "[QUESTIONS]", "[MCQS]"),
             mcqs = safeExtract(text, "[MCQS]", "[MINDMAP]"),
-            mindmapSummary = safeExtract(text, "[MINDMAP]", "[PLAN]"),
-            revisionPlan = text.substringAfter("[PLAN]", "").trim()
+            mindmapSummary = text.substringAfter("[MINDMAP]", "").trim()
         )
     }
 }
