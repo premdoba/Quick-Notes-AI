@@ -1,7 +1,10 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -69,6 +72,20 @@ dependencies {
 //
 //    // 3. For displaying the PDF to the user (Crucial!)
 //    implementation("androidx.pdf:pdf-viewer:1.0.0-alpha18")
+
+    // Material 3
+    implementation ("androidx.compose.material3:material3:1.2.1")
+
+    // Navigation Compose
+    implementation ("androidx.navigation:navigation-compose:2.7.7")
+
+    // Room Database
+    implementation ("androidx.room:room-runtime:2.6.1")
+    implementation ("androidx.room:room-ktx:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
+
+    //ml kit for ocr(image to text converter)
+    implementation("com.google.mlkit:text-recognition:16.0.1")
 
     implementation("com.itextpdf:itext7-core:7.2.5")
     implementation("androidx.activity:activity-compose:1.9.0")

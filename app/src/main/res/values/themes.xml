@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.QuickNotes" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.QuickNotes" parent="android:Theme.Material.NoActionBar">
+
+        <!-- Fix white flash -->
+        <item name="android:windowBackground">#0A0A0D</item>
+
+        <!-- Status + Navigation bar -->
+        <item name="android:statusBarColor">#0A0A0D</item>
+        <item name="android:navigationBarColor">#0A0A0D</item>
+
+    </style>
+
 </resources>
