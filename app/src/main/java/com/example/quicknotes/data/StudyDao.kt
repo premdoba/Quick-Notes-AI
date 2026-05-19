@@ -19,4 +19,7 @@ interface StudyDao {
 
     @Query("DELETE FROM study_history")
     suspend fun deleteAll()
+
+    @Query("DELETE FROM study_history WHERE id = :id")
+    suspend fun deleteById(id: Int)
 }

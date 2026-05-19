@@ -11,15 +11,18 @@ android {
     namespace = "com.example.quicknotes"
     compileSdk = 36
 
-//    // ADD THIS LINE
-//    compileSdkExtension = 19
-
     defaultConfig {
         applicationId = "com.example.quicknotes"
+        val geminiApiKey: String = project.findProperty("API_KEY") as String? ?: ""
         minSdk = 24
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+        buildConfigField(
+            "String",
+            "API_KEY",
+            "\"$geminiApiKey\""
+        )
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -42,6 +45,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

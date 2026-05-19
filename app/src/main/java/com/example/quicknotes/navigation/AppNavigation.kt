@@ -6,10 +6,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
-import com.example.quicknotes.StudyViewModel
+import com.example.quicknotes.viewmodel.StudyViewModel
 import com.example.quicknotes.ui.screens.GenerateScreen
 import com.example.quicknotes.ui.screens.HistoryDetailScreen
 import com.example.quicknotes.ui.screens.HistoryScreen
+import com.example.quicknotes.ui.screens.QuizScreen
 
 sealed class Routes(val route: String) {
     object Generate : Routes("generate")
@@ -17,6 +18,7 @@ sealed class Routes(val route: String) {
     object HistoryDetail : Routes("historyDetail/{id}") {
         fun createRoute(id: Int) = "historyDetail/$id"
     }
+    object Quiz : Routes("quiz")
 }
 
 @Composable
@@ -25,6 +27,10 @@ fun AppNavigation(navController: NavHostController, vm: StudyViewModel) {
 
         composable(Routes.Generate.route) {
             GenerateScreen(navController, vm)
+        }
+
+        composable(Routes.Quiz.route) {
+            QuizScreen(navController, vm)
         }
 
         composable(Routes.History.route) {

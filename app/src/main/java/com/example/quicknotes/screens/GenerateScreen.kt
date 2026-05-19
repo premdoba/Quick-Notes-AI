@@ -1,4 +1,5 @@
 package com.example.quicknotes.ui.screens
+
 import android.Manifest
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -14,24 +15,23 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.navigation.NavController
-import com.example.quicknotes.Mcq
-import com.example.quicknotes.StudyViewModel
-import com.example.quicknotes.UiState
+import com.example.quicknotes.viewmodel.Mcq
+import com.example.quicknotes.R
+import com.example.quicknotes.viewmodel.StudyViewModel
+import com.example.quicknotes.viewmodel.UiState
 import com.example.quicknotes.ui.Routes
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
@@ -61,7 +61,6 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
         )
     )
 
-
     // Create temp file for camera photo
     val photoFile = remember {
         File.createTempFile("camera_photo_", ".jpg", context.cacheDir)
@@ -75,6 +74,7 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
             photoFile
         )
     }
+
     // Camera capture
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
@@ -86,6 +86,7 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
                 }
             }
         }
+
     val cameraPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
@@ -106,6 +107,7 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
                 }
             }
         }
+
     val galleryPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
@@ -124,14 +126,10 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
             }
         }
 
-
-
     Scaffold(
         floatingActionButton = {
 
-            Box(
-                modifier = Modifier.wrapContentSize()
-            ) {
+            Box(modifier = Modifier.wrapContentSize()) {
 
                 Column(
                     modifier = Modifier.align(Alignment.BottomEnd),
@@ -145,17 +143,17 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
                             horizontalAlignment = Alignment.End
                         ) {
 
-                            MiniFabButton("Camera", Icons.Default.Person) {
+                            MiniFabButton("Camera", R.drawable.camera) {
                                 cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                                 fabExpanded = false
                             }
 
-                            MiniFabButton("Gallery", Icons.Default.Face) {
-                                galleryPermissionLauncher.launch(android.Manifest.permission.READ_MEDIA_IMAGES)
+                            MiniFabButton("Gallery", R.drawable.baseline_image) {
+                                galleryPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
                                 fabExpanded = false
                             }
 
-                            MiniFabButton("PDF", Icons.Default.DateRange) {
+                            MiniFabButton("PDF", R.drawable.baseline_picture_as_pdf_24) {
                                 pdfLauncher.launch("application/pdf")
                                 fabExpanded = false
                             }
@@ -184,14 +182,13 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
 
                 NavigationBarItem(
                     selected = false,
-                    onClick = {
-                        try {
-                            navController.navigate(Routes.History.route)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
+                    onClick = { navController.navigate(Routes.History.route) },
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.baseline_history),
+                            contentDescription = "History"
+                        )
                     },
-                    icon = { Icon(Icons.Default.PlayArrow, contentDescription = "History") },
                     label = { Text("History") }
                 )
             }
@@ -260,14 +257,8 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
 
                     Button(
                         onClick = {
-                            try {
-                                if (inputText.isNotBlank() && levelText.isNotBlank()) {
-                                    vm.generateStudyMaterial(inputText, levelText)
-                                } else {
-                                    throw IllegalArgumentException("Please fill all fields!")
-                                }
-                            } catch (e: Exception) {
-                                e.printStackTrace()
+                            if (inputText.isNotBlank() && levelText.isNotBlank()) {
+                                vm.generateStudyMaterial(inputText, levelText)
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
@@ -297,20 +288,72 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
                     SectionCard("Short Notes", notes.shortNotes)
                     SectionCard("Important Questions", notes.importantQuestions)
 
-                    Text(
-                        text = "MCQs Flashcards",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(vertical = 10.dp)
-                    )
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                    notes.mcqs.forEachIndexed { index, mcq ->
-                        FlashCardMcq(index + 1, mcq)
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 10.dp),
+                        shape = RoundedCornerShape(22.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        elevation = CardDefaults.cardElevation(8.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(18.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.baseline_quiz_24),
+                                    contentDescription = "Quiz",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(28.dp)
+                                )
+
+                                Column {
+                                    Text(
+                                        text = "MCQ Quiz",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
+
+                                    Text(
+                                        text = "Test your knowledge with 10 questions",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                                    )
+                                }
+                            }
+
+                            Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
+
+                            Button(
+                                onClick = {
+                                    vm.refreshMcqs(vm.lastInputText, vm.lastLevelText)
+                                    navController.navigate(Routes.Quiz.route)
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(14.dp)
+                            ) {
+                                Text("Start Quiz")
+                            }
+                        }
                     }
-
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // MINDMAP REMOVED
+//                    notes.mcqs.forEachIndexed { index, mcq ->
+//                        key(index, mcq.question) {
+//                            QuizMcqCard(index + 1, mcq)
+//                        }
+//                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     SectionCard("Summary", notes.summary)
                 }
@@ -358,12 +401,12 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
 @Composable
 fun MiniFabButton(
     text: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: Int,
     onClick: () -> Unit
 ) {
     ExtendedFloatingActionButton(
         text = { Text(text) },
-        icon = { Icon(icon, contentDescription = text) },
+        icon = { Icon(painter = painterResource(id = icon), contentDescription = text) },
         onClick = onClick,
         containerColor = MaterialTheme.colorScheme.secondary
     )
@@ -398,57 +441,115 @@ fun SectionCard(title: String, content: String) {
     }
 }
 
-@Composable
-fun FlashCardMcq(number: Int, mcq: Mcq) {
+//@Composable
+//fun QuizMcqCard(number: Int, mcq: Mcq) {
+//
+//    var selectedOption by remember { mutableStateOf<String?>(null) }
+//    var submitted by remember { mutableStateOf(false) }
+//
+//    val correctAnswer = mcq.answer.trim()
+//
+//    fun isCorrect(option: String): Boolean {
+//        return option.startsWith(correctAnswer) || option.startsWith("$correctAnswer)")
+//    }
+//
+//    Card(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(bottom = 12.dp),
+//        shape = RoundedCornerShape(20.dp),
+//        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+//        elevation = CardDefaults.cardElevation(8.dp)
+//    ) {
+//        Column(modifier = Modifier.padding(16.dp)) {
+//
+//            Text(
+//                text = "$number) ${mcq.question}",
+//                style = MaterialTheme.typography.titleMedium,
+//                fontWeight = FontWeight.Bold
+//            )
+//
+//            Spacer(modifier = Modifier.height(6.dp))
+//
+//            mcq.options.forEach { option ->
+//
+//                val cleanOption = option.substringAfter(")").trim()
+//
+//                Row(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .clickable(enabled = !submitted) {
+//                            selectedOption = option
+//                        }
+//                        .padding(vertical = 2.dp),
+//                    verticalAlignment = Alignment.CenterVertically
+//                ) {
+//                    RadioButton(
+//                        selected = selectedOption == option,
+//                        onClick = {
+//                            if (!submitted) selectedOption = option
+//                        },
+//                        enabled = !submitted
+//                    )
+//
+//                    Spacer(modifier = Modifier.width(6.dp))
+//
+//                    Text(
+//                        text = cleanOption,
+//                        style = MaterialTheme.typography.bodyMedium
+//                    )
+//                }
+//            }
+//
+//            Spacer(modifier = Modifier.height(10.dp))
+//
+//            Button(
+//                onClick = { submitted = true },
+//                enabled = selectedOption != null && !submitted,
+//                modifier = Modifier.fillMaxWidth(),
+//                shape = RoundedCornerShape(14.dp)
+//            ) {
+//                Text("Submit Answer")
+//            }
+//
+//            if (submitted && selectedOption != null) {
+//
+//                val correct = isCorrect(selectedOption!!)
+//
+//                Spacer(modifier = Modifier.height(10.dp))
+//
+//                Text(
+//                    text = if (correct) "✅ Correct Answer!" else "❌ Wrong Answer!",
+//                    style = MaterialTheme.typography.titleMedium,
+//                    fontWeight = FontWeight.Bold,
+//                    color = if (correct) MaterialTheme.colorScheme.primary
+//                    else MaterialTheme.colorScheme.error
+//                )
+//
+//                Spacer(modifier = Modifier.height(6.dp))
+//
+//                Text(
+//                    text = "Correct Answer: ${mcq.answer}",
+//                    style = MaterialTheme.typography.bodyMedium,
+//                    fontWeight = FontWeight.Bold
+//                )
+//
+//                // Explanation / Description
+//                if (mcq.explanation.isNotBlank()) {
+//                    Spacer(modifier = Modifier.height(6.dp))
+//
+//                    Text(
+//                        text = "Explanation: ${mcq.explanation}",
+//                        style = MaterialTheme.typography.bodyMedium,
+//                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f)
+//                    )
+//                }
+//            }
+//        }
+//    }
+//}
 
-    var expanded by remember { mutableStateOf(false) }
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 12.dp)
-            .clickable { expanded = !expanded },
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(8.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-
-            Text(
-                text = "$number) ${mcq.question}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            mcq.options.forEach {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            AnimatedVisibility(visible = expanded) {
-                Column {
-                    Divider()
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Answer: ${mcq.answer}",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.secondary,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-        }
-    }
-}
-
-//OCR function
+// OCR function
 fun extractTextFromImage(uri: Uri, context: android.content.Context, onResult: (String) -> Unit) {
     try {
         val inputStream = context.contentResolver.openInputStream(uri)

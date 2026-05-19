@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.quicknotes.ui.AppNavigation
 import com.example.quicknotes.ui.theme.QuickNotesTheme
+import com.example.quicknotes.viewmodel.StudyViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
