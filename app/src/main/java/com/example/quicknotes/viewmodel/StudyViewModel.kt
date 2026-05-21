@@ -58,7 +58,7 @@ class StudyViewModel(application: Application) : AndroidViewModel(application) {
 
     private val generativeModel = GenerativeModel(
         modelName = "gemini-3.1-flash-lite-preview",
-        apiKey = "AIzaSyBju18qwalgrbZ1U7ZPvRc-UInQTLmuEDQ"
+        apiKey = "API_KEY"
     )
 
     fun generateStudyMaterial(input: String, educationLevel: String) {
