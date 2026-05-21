@@ -12,4 +12,10 @@
 
     </style>
 
+    <style name="Theme.QuickNotes.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#FFFFFF</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/quick_notes_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.QuickNotes</item>
+    </style>
+
 </resources>

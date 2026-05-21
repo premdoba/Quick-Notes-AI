@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -31,6 +32,12 @@ fun HistoryScreen(navController: NavController, vm: StudyViewModel) {
 
     val history by vm.historyList.collectAsState(initial = emptyList())
 
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+    val isTablet = screenWidth >= 600
+    val paddingSize = if (isTablet) 32.dp else 14.dp
+    val maxContentWidth = 720.dp
+
     val gradient = Brush.verticalGradient(
         listOf(
             MaterialTheme.colorScheme.background,
@@ -44,7 +51,6 @@ fun HistoryScreen(navController: NavController, vm: StudyViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // Clear All Confirmation Dialog
     if (showClearDialog) {
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
@@ -90,147 +96,186 @@ fun HistoryScreen(navController: NavController, vm: StudyViewModel) {
         },
 
         bottomBar = {
-            BottomAppBar(containerColor = MaterialTheme.colorScheme.surface) {
+            if (!isTablet) {
+                BottomAppBar(containerColor = MaterialTheme.colorScheme.surface) {
 
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { navController.navigate(Routes.Generate.route) },
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                    label = { Text("Home") }
-                )
+                    NavigationBarItem(
+                        selected = false,
+                        onClick = { navController.navigate(Routes.Generate.route) },
+                        icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                        label = { Text("Home") }
+                    )
 
-                NavigationBarItem(
-                    selected = true,
-                    onClick = {},
-                    icon = {
-                        Icon(
-                            painter = painterResource(R.drawable.baseline_history),
-                            contentDescription = "History"
-                        )
-                    },
-                    label = { Text("History") }
-                )
+                    NavigationBarItem(
+                        selected = true,
+                        onClick = {},
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.baseline_history),
+                                contentDescription = "History"
+                            )
+                        },
+                        label = { Text("History") }
+                    )
+                }
             }
         }
 
     ) { paddingValues ->
 
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxSize()
                 .background(gradient)
                 .padding(paddingValues)
-                .padding(14.dp)
         ) {
 
-            if (history.isNotEmpty()) {
-                Text(
-                    text = "Tip: Swipe left to delete an item.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                    modifier = Modifier.padding(bottom = 10.dp)
-                )
+            if (isTablet) {
+                NavigationRail(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ) {
+                    NavigationRailItem(
+                        selected = false,
+                        onClick = { navController.navigate(Routes.Generate.route) },
+                        icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                        label = { Text("Home") }
+                    )
+
+                    NavigationRailItem(
+                        selected = true,
+                        onClick = {},
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.baseline_history),
+                                contentDescription = "History"
+                            )
+                        },
+                        label = { Text("History") }
+                    )
+                }
             }
 
-            if (history.isEmpty()) {
-                Text(
-                    text = "No history found yet.",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingSize),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
-                LazyColumn {
-                    items(history, key = { it.id }) { item ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .widthIn(max = maxContentWidth)
+                ) {
 
-                        val dismissState = rememberSwipeToDismissBoxState(
-                            confirmValueChange = { value ->
-                                if (value == SwipeToDismissBoxValue.EndToStart) {
+                    if (history.isNotEmpty()) {
+                        Text(
+                            text = "Tip: Swipe left to delete an item.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                            modifier = Modifier.padding(bottom = 10.dp)
+                        )
+                    }
 
-                                    // delete item
-                                    vm.deleteHistoryItem(item.id)
+                    if (history.isEmpty()) {
+                        Text(
+                            text = "No history found yet.",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    } else {
 
-                                    // show snackbar undo
-                                    scope.launch {
-                                        val result = snackbarHostState.showSnackbar(
-                                            message = "Deleted",
-                                            actionLabel = "UNDO",
-                                            duration = SnackbarDuration.Short
-                                        )
+                        LazyColumn {
+                            items(history, key = { it.id }) { item ->
 
-                                        if (result == SnackbarResult.ActionPerformed) {
-                                            vm.insertHistoryItem(item)
+                                val dismissState = rememberSwipeToDismissBoxState(
+                                    confirmValueChange = { value ->
+                                        if (value == SwipeToDismissBoxValue.EndToStart) {
+
+                                            vm.deleteHistoryItem(item.id)
+
+                                            scope.launch {
+                                                val result = snackbarHostState.showSnackbar(
+                                                    message = "Deleted",
+                                                    actionLabel = "UNDO",
+                                                    duration = SnackbarDuration.Short
+                                                )
+
+                                                if (result == SnackbarResult.ActionPerformed) {
+                                                    vm.insertHistoryItem(item)
+                                                }
+                                            }
+
+                                            true
+                                        } else {
+                                            false
                                         }
                                     }
+                                )
 
-                                    true
-                                } else {
-                                    false
-                                }
-                            }
-                        )
-
-                        SwipeToDismissBox(
-                            state = dismissState,
-                            enableDismissFromStartToEnd = false,
-                            backgroundContent = {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(bottom = 12.dp)
-                                        .background(
-                                            MaterialTheme.colorScheme.error,
-                                            shape = RoundedCornerShape(20.dp)
-                                        )
-                                        .padding(end = 20.dp),
-                                    contentAlignment = Alignment.CenterEnd
+                                SwipeToDismissBox(
+                                    state = dismissState,
+                                    enableDismissFromStartToEnd = false,
+                                    backgroundContent = {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(bottom = 12.dp)
+                                                .background(
+                                                    MaterialTheme.colorScheme.error,
+                                                    shape = RoundedCornerShape(20.dp)
+                                                )
+                                                .padding(end = 20.dp),
+                                            contentAlignment = Alignment.CenterEnd
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Delete,
+                                                contentDescription = "Delete",
+                                                tint = MaterialTheme.colorScheme.onError
+                                            )
+                                        }
+                                    }
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "Delete",
-                                        tint = MaterialTheme.colorScheme.onError
-                                    )
-                                }
-                            }
-                        ) {
 
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 12.dp)
-                                    .clickable {
-                                        navController.navigate(
-                                            Routes.HistoryDetail.createRoute(item.id)
-                                        )
-                                    },
-                                shape = RoundedCornerShape(20.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
-                                ),
-                                elevation = CardDefaults.cardElevation(8.dp)
-                            ) {
-                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(bottom = 12.dp)
+                                            .clickable {
+                                                navController.navigate(
+                                                    Routes.HistoryDetail.createRoute(item.id)
+                                                )
+                                            },
+                                        shape = RoundedCornerShape(20.dp),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = MaterialTheme.colorScheme.surface
+                                        ),
+                                        elevation = CardDefaults.cardElevation(8.dp)
+                                    ) {
+                                        Column(modifier = Modifier.padding(16.dp)) {
 
-                                    Text(
-                                        text = item.topic,
-                                        style = MaterialTheme.typography.titleLarge,
-                                        fontWeight = FontWeight.Bold
-                                    )
+                                            Text(
+                                                text = item.topic,
+                                                style = MaterialTheme.typography.titleLarge,
+                                                fontWeight = FontWeight.Bold
+                                            )
 
-                                    Spacer(modifier = Modifier.height(4.dp))
+                                            Spacer(modifier = Modifier.height(4.dp))
 
-                                    Text(
-                                        text = "Level: ${item.educationLevel}",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
-                                    )
+                                            Text(
+                                                text = "Level: ${item.educationLevel}",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                                            )
 
-                                    Spacer(modifier = Modifier.height(6.dp))
+                                            Spacer(modifier = Modifier.height(6.dp))
 
-                                    Text(
-                                        text = formatDate(item.createdAt),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.secondary
-                                    )
+                                            Text(
+                                                text = formatDate(item.createdAt),
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.secondary
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }

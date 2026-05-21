@@ -6,7 +6,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quicknotes.data.AppDatabase
 import com.example.quicknotes.data.StudyHistoryEntity
-import com.google.ai.client.generativeai.BuildConfig
 import com.google.ai.client.generativeai.GenerativeModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,9 +50,15 @@ class StudyViewModel(application: Application) : AndroidViewModel(application) {
     var lastInputText: String = ""
     var lastLevelText: String = ""
 
+    // NEW: store last mcq difficulty
+    var lastMcqDifficulty: String = "Medium"
+
+    // NEW: store conversation history for continue chat
+    private val chatHistory = mutableListOf<String>()
+
     private val generativeModel = GenerativeModel(
         modelName = "gemini-3.1-flash-lite-preview",
-        apiKey = "API_KEY"
+        apiKey = "AIzaSyBju18qwalgrbZ1U7ZPvRc-UInQTLmuEDQ"
     )
 
     fun generateStudyMaterial(input: String, educationLevel: String) {
@@ -135,6 +140,11 @@ class StudyViewModel(application: Application) : AndroidViewModel(application) {
                     val notes = parseNotes(responseText)
                     _uiState.value = UiState.Success(notes)
 
+                    // NEW: reset chat history and store generated content
+                    chatHistory.clear()
+                    chatHistory.add("CONTENT:\n$limitedInput")
+                    chatHistory.add("AI STUDY MATERIAL:\n$responseText")
+
                     dao.insertHistory(
                         StudyHistoryEntity(
                             topic = limitedInput.take(35),
@@ -143,7 +153,8 @@ class StudyViewModel(application: Application) : AndroidViewModel(application) {
                             questions = notes.importantQuestions,
                             mcqsRaw = notes.mcqsRaw,
                             mindmap = notes.mindmapSummary,
-                            summary = notes.summary
+                            summary = notes.summary,
+                            originalInput = limitedInput
                         )
                     )
                 }
@@ -151,6 +162,79 @@ class StudyViewModel(application: Application) : AndroidViewModel(application) {
             } catch (e: Exception) {
                 Log.e("GEMINI_ERROR", "Gemini API Failed", e)
                 _uiState.value = UiState.Error(e.localizedMessage ?: "Something went wrong.")
+            }
+        }
+    }
+
+    // NEW: Ask doubt / continue chat
+    fun askDoubt(question: String, onResult: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val currentState = _uiState.value
+
+                val contextText = if (currentState is UiState.Success) {
+                    """
+                    Short Notes:
+                    ${currentState.notes.shortNotes}
+
+                    Summary:
+                    ${currentState.notes.summary}
+
+                    Important Questions:
+                    ${currentState.notes.importantQuestions}
+                    """.trimIndent()
+                } else {
+                    ""
+                }
+
+                val historyText = chatHistory.joinToString("\n\n")
+
+                val prompt = """
+                You are a helpful teacher.
+                
+                Student Education Level: "$lastLevelText"
+                
+                Below is previous generated content and conversation:
+                
+                $historyText
+                
+                Extra Context:
+                $contextText
+                
+                Student Question:
+                "$question"
+                
+                Generate study material based on the below content.
+                Keep the language VERY EASY and simple.
+                
+                VERY IMPORTANT RULES:
+                - Short notes must NEVER be in paragraph.
+                - Short notes must ALWAYS be in bullet points.
+                - Each bullet point should be maximum 1-2 lines.
+                - Use simple and easy English words.
+                - Do not use markdown like **bold**, ###, etc.
+                - Do not use emojis.
+                - Do not add any extra headings.
+                - Output must be clean and readable.
+                - Follow the exact format strictly.
+                """.trimIndent()
+
+                val responseText = withContext(Dispatchers.IO) {
+                    val response = generativeModel.generateContent(prompt)
+                    response.text ?: ""
+                }
+
+                if (responseText.isNotBlank()) {
+                    chatHistory.add("USER QUESTION:\n$question")
+                    chatHistory.add("AI ANSWER:\n$responseText")
+                    onResult(responseText)
+                } else {
+                    onResult("No response received. Please try again.")
+                }
+
+            } catch (e: Exception) {
+                Log.e("DOUBT_ERROR", "Ask Doubt Failed", e)
+                onResult("Error: ${e.localizedMessage ?: "Something went wrong"}")
             }
         }
     }
@@ -222,21 +306,31 @@ class StudyViewModel(application: Application) : AndroidViewModel(application) {
         return mcqList
     }
 
-    fun refreshMcqs(input: String, educationLevel: String) {
+    // UPDATED: refreshMcqs now supports difficulty
+    fun refreshMcqs(input: String, difficulty: String) {
+
         lastInputText = input
-        lastLevelText = educationLevel
+        lastMcqDifficulty = difficulty
 
         viewModelScope.launch {
             try {
                 val limitedInput = input.take(8000)
 
+                val difficultyRule = when (difficulty.lowercase()) {
+                    "easy" -> "Make MCQs very easy. Use direct questions."
+                    "hard" -> "Make MCQs hard. Use tricky conceptual questions."
+                    else -> "Make MCQs medium level. Balance easy and conceptual questions."
+                }
+
                 val prompt = """
             You are an expert teacher.
             
-            Student Education Level / Grade: "$educationLevel"
+            Student Education Level / Grade: "$lastLevelText"
+            
+            MCQ Difficulty: "$difficulty"
+            $difficultyRule
             
             Generate ONLY 10 new MCQs from the below content.
-            Keep questions easy.
             
             VERY IMPORTANT RULES:
             - Do not repeat previous questions.
@@ -295,5 +389,8 @@ class StudyViewModel(application: Application) : AndroidViewModel(application) {
             summary = text.substringAfter("[SUMMARY]", "").trim(),
             mcqsRaw = mcqRaw
         )
+    }
+    fun loadHistoryNotes(notes: StudyNotes) {
+        _uiState.value = UiState.Success(notes)
     }
 }

@@ -15,5 +15,6 @@ data class StudyHistoryEntity(
     val mcqsRaw: String,
     val mindmap: String,
     val summary: String,
+    val originalInput: String,
     val createdAt: Long = System.currentTimeMillis()
 )
