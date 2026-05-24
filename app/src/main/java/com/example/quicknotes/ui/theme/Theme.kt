@@ -7,55 +7,58 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-// 🌙 Dark Theme (your current theme)
+// 🌑 Dark Theme — Matte Black + Electric Cyan
 private val GraphiteVioletDarkTheme = darkColorScheme(
-    primary = Color(0xFF9D7BFF),
-    secondary = Color(0xFF7663B8),
-    tertiary = Color(0xFFFFB86C),
 
-    background = Color(0xFF0A0A0D),
-    surface = Color(0xFF141418),
-    surfaceVariant = Color(0xFF1F1F26),
+    primary = Color(0xFF37E2FF),
+    secondary = Color(0xFF00B8D4),
+    tertiary = Color(0xFFB6F7FF),
+
+    background = Color(0xFF030405),
+    surface = Color(0xFF0D1114),
+    surfaceVariant = Color(0xFF161C21),
 
     onPrimary = Color.Black,
-    onSecondary = Color.White,
+    onSecondary = Color.Black,
     onTertiary = Color.Black,
 
-    onBackground = Color(0xFFF1F1F1),
-    onSurface = Color(0xFFF1F1F1),
-    onSurfaceVariant = Color(0xFFB8B8B8),
+    onBackground = Color(0xFFF2FCFF),
+    onSurface = Color(0xFFF2FCFF),
+    onSurfaceVariant = Color(0xFFABC0C7),
 
-    outline = Color(0xFF2E2E36),
-    outlineVariant = Color(0xFF1C1C22)
+    outline = Color(0xFF273239),
+    outlineVariant = Color(0xFF1A2126)
 )
 
-// ☀️ Light Theme (matching style)
+// ☀️ Light Theme — Clean Cyan
 private val GraphiteVioletLightTheme = lightColorScheme(
-    primary = Color(0xFF6B4DFF),        // Stronger violet for light mode
-    secondary = Color(0xFF5C4BA0),      // Muted violet
-    tertiary = Color(0xFFFF8C42),       // Warm orange accent
 
-    background = Color(0xFFF8F8FC),     // Soft off-white
-    surface = Color(0xFFFFFFFF),        // Pure white surface
-    surfaceVariant = Color(0xFFF0F0F7), // Light card surface
+    primary = Color(0xFF0097A7),
+    secondary = Color(0xFF007C91),
+    tertiary = Color(0xFFA5F3FC),
+
+    background = Color(0xFFF5FDFF),
+    surface = Color(0xFFFFFFFF),
+    surfaceVariant = Color(0xFFEAF7FA),
 
     onPrimary = Color.White,
     onSecondary = Color.White,
     onTertiary = Color.Black,
 
-    onBackground = Color(0xFF121212),
-    onSurface = Color(0xFF121212),
-    onSurfaceVariant = Color(0xFF55555F),
+    onBackground = Color(0xFF102126),
+    onSurface = Color(0xFF102126),
+    onSurfaceVariant = Color(0xFF55707A),
 
-    outline = Color(0xFFCCCCD6),
-    outlineVariant = Color(0xFFE5E5EF)
+    outline = Color(0xFFD0E4E8),
+    outlineVariant = Color(0xFFE6F4F7)
 )
 
 @Composable
 fun QuickNotesTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(), // auto device theme
+    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
+
     val colors = if (darkTheme) {
         GraphiteVioletDarkTheme
     } else {

@@ -1,21 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Main App Theme -->
     <style name="Theme.QuickNotes" parent="android:Theme.Material.NoActionBar">
 
-        <!-- Fix white flash -->
         <item name="android:windowBackground">#0A0A0D</item>
 
-        <!-- Status + Navigation bar -->
         <item name="android:statusBarColor">#0A0A0D</item>
         <item name="android:navigationBarColor">#0A0A0D</item>
 
     </style>
 
+    <!-- Splash Screen Theme -->
     <style name="Theme.QuickNotes.Splash" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">#FFFFFF</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/quick_notes_logo</item>
-        <item name="postSplashScreenTheme">@style/Theme.QuickNotes</item>
+
+        <!-- Gradient Background -->
+        <item name="windowSplashScreenBackground">
+            @drawable/splash_gradient
+        </item>
+
+        <!-- Logo -->
+        <item name="windowSplashScreenAnimatedIcon">
+            @drawable/quick_notes_logo
+        </item>
+
+        <!-- Purple glow circle -->
+        <item name="windowSplashScreenIconBackgroundColor">
+            #9D7BFF
+        </item>
+
+        <!-- Main Theme -->
+        <item name="postSplashScreenTheme">
+            @style/Theme.QuickNotes
+        </item>
+
     </style>
 
 </resources>

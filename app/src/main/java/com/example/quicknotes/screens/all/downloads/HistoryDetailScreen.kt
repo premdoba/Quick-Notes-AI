@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -50,6 +48,7 @@ fun HistoryDetailScreen(
     // NEW LOADING STATE
     var isQuizLoading by remember { mutableStateOf(false) }
 
+    val snackbarHostState = remember { SnackbarHostState() }
     val gradient = Brush.verticalGradient(
         listOf(
             MaterialTheme.colorScheme.background,
@@ -83,8 +82,6 @@ fun HistoryDetailScreen(
 
                     mcqsRaw = item.mcqsRaw,
 
-                    mindmapSummary = item.mindmap,
-
                     summary = item.summary
                 )
 
@@ -98,6 +95,9 @@ fun HistoryDetailScreen(
     }
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(snackbarHostState)
+        },
         topBar = {
             TopAppBar(
                 title = {
@@ -113,7 +113,7 @@ fun HistoryDetailScreen(
                         }
                     ) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            painter = painterResource(R.drawable.baseline_arrow_back_ios_24),
                             contentDescription = "Back"
                         )
                     }
@@ -230,6 +230,12 @@ fun HistoryDetailScreen(
 
                             Button(
                                 onClick = {
+
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            message = "Turn on internet to generate fresh MCQs"
+                                        )
+                                    }
 
                                     isQuizLoading = true
 

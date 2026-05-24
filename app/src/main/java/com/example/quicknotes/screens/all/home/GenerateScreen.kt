@@ -1,6 +1,7 @@
 package com.example.quicknotes.ui.screens
 
 import android.Manifest
+import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -24,14 +25,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,8 +40,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -244,7 +243,7 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
                         onClick = { fabExpanded = !fabExpanded },
                         containerColor = MaterialTheme.colorScheme.primary
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = "Add")
+                        Icon(painter = painterResource(R.drawable.baseline_add_24), contentDescription = "Add")
                     }
                 }
             }
@@ -252,30 +251,67 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
 
         bottomBar = {
             if (!isTablet) {
-
-                BottomAppBar(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ) {
+                BottomAppBar(containerColor = MaterialTheme.colorScheme.surface) {
 
                     NavigationBarItem(
                         selected = true,
-                        onClick = {},
-                        icon = {
-                            Icon(Icons.Default.Home, contentDescription = "Home")
-                        },
-                        label = { Text("Home") }
+                        onClick = { navController.navigate(Routes.Generate.route) },
+                        icon = { Icon(painter = painterResource(R.drawable.outline_home_24), contentDescription = "Home") },
+                        label = { Text("Home") },
+                        colors = NavigationBarItemDefaults.colors(
+
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+
+                            indicatorColor = MaterialTheme.colorScheme.primary,
+
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     )
 
                     NavigationBarItem(
                         selected = false,
-                        onClick = { navController.navigate(Routes.History.route) },
+                        onClick = { navController.navigate(Routes.Downloads.route) },
                         icon = {
                             Icon(
-                                painter = painterResource(R.drawable.baseline_history),
-                                contentDescription = "History"
+                                painter = painterResource(R.drawable.outline_download_24),
+                                contentDescription = "Downloads"
                             )
                         },
-                        label = { Text("History") }
+                        label = { Text("Downloads") },
+                        colors = NavigationBarItemDefaults.colors(
+
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+
+                            indicatorColor = MaterialTheme.colorScheme.primary,
+
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+
+                    NavigationBarItem(
+                        selected = false,
+                        onClick = { navController.navigate(Routes.Settings.route) },
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.outline_settings_24),
+                                contentDescription = "Settings"
+                            )
+                        },
+                        label = { Text("Settings") },
+                        colors = NavigationBarItemDefaults.colors(
+
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+
+                            indicatorColor = MaterialTheme.colorScheme.primary,
+
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     )
                 }
             }
@@ -300,21 +336,67 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
                         selected = true,
                         onClick = {},
                         icon = {
-                            Icon(Icons.Default.Home, contentDescription = "Home")
+                            Icon(painter = painterResource(R.drawable.outline_home_24), contentDescription = "Home")
                         },
-                        label = { Text("Home") }
+                        label = { Text("Home") },
+                        colors = NavigationRailItemDefaults.colors(
+
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+
+                            indicatorColor = MaterialTheme.colorScheme.primary,
+
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     )
 
                     NavigationRailItem(
                         selected = false,
-                        onClick = { navController.navigate(Routes.History.route) },
+                        onClick = { navController.navigate(Routes.Downloads.route) },
                         icon = {
                             Icon(
                                 painter = painterResource(R.drawable.baseline_history),
                                 contentDescription = "History"
                             )
                         },
-                        label = { Text("History") }
+                        label = { Text("History") },
+                        colors = NavigationRailItemDefaults.colors(
+
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+
+                            indicatorColor = MaterialTheme.colorScheme.primary,
+
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+
+                    NavigationRailItem(
+                        selected = false,
+                        onClick = {
+                            navController.navigate(Routes.Settings.route)
+                        },
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.outline_settings_24),
+                                contentDescription = "Settings"
+                            )
+                        },
+                        label = {
+                            Text("Settings")
+                        },
+                        colors = NavigationRailItemDefaults.colors(
+
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+
+                            indicatorColor = MaterialTheme.colorScheme.primary,
+
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     )
                 }
             }
@@ -633,7 +715,7 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
 
                         is UiState.Error -> {
 
-                            val msg = (state as UiState.Error).message
+                            val msg = "Please use a strong internet connection."
 
                             Card(
                                 modifier = Modifier
@@ -780,7 +862,7 @@ fun EducationLevelDropdown(
 
 fun extractTextFromImage(
     uri: Uri,
-    context: android.content.Context,
+    context: Context,
     onResult: (String) -> Unit
 ) {
 
@@ -800,11 +882,11 @@ fun extractTextFromImage(
                 onResult(visionText.text)
             }
             .addOnFailureListener { e ->
-                onResult("OCR Failed: ${e.message}")
+                onResult("OCR Failed To Extract Text: Please try again after some time")
             }
 
     } catch (e: Exception) {
 
-        onResult("Error: ${e.message}")
+        onResult("Not able to convert your file to text")
     }
 }

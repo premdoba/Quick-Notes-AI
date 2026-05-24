@@ -4,11 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.quicknotes.data.local.QuizHistoryDao
+import com.example.quicknotes.data.local.QuizHistoryEntity
 
-@Database(entities = [StudyHistoryEntity::class], version = 3)
+@Database(entities = [StudyHistoryEntity::class, QuizHistoryEntity::class], version = 7)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun studyDao(): StudyDao
+    abstract fun quizHistoryDao(): QuizHistoryDao
 
     companion object {
         @Volatile

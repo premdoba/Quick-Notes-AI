@@ -1,21 +1,26 @@
 package com.example.quicknotes.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.quicknotes.R
+import com.example.quicknotes.data.model.SavedQuiz
 import com.example.quicknotes.viewmodel.Mcq
 import com.example.quicknotes.viewmodel.StudyViewModel
 import com.example.quicknotes.viewmodel.UiState
+import com.google.gson.Gson
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,6 +31,8 @@ fun QuizScreen(navController: NavController, vm: StudyViewModel) {
     val isTablet = screenWidth >= 600
     val paddingSize = if (isTablet) 32.dp else 16.dp
     val maxContentWidth = 720.dp
+
+    val scope = rememberCoroutineScope()
 
     val state by vm.uiState.collectAsState()
 
@@ -44,6 +51,14 @@ fun QuizScreen(navController: NavController, vm: StudyViewModel) {
 
     val selectedAnswers = remember { mutableStateMapOf<Int, String>() }
 
+    val gradient = Brush.verticalGradient(
+        listOf(
+            MaterialTheme.colorScheme.background,
+            MaterialTheme.colorScheme.surface,
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
+        )
+    )
+
     fun isCorrect(mcq: Mcq, selected: String?): Boolean {
         if (selected == null) return false
         val correctAnswer = mcq.answer.trim()
@@ -61,7 +76,7 @@ fun QuizScreen(navController: NavController, vm: StudyViewModel) {
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            painter = painterResource(R.drawable.baseline_arrow_back_ios_24),
                             contentDescription = "Back"
                         )
                     }
@@ -73,6 +88,7 @@ fun QuizScreen(navController: NavController, vm: StudyViewModel) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(gradient)
                 .padding(padding)
                 .padding(paddingSize),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -148,7 +164,35 @@ fun QuizScreen(navController: NavController, vm: StudyViewModel) {
                             }
                         } else {
                             Button(
-                                onClick = { submitted = true },
+                                onClick =
+                                    {
+
+                                    submitted = true
+
+                                    val savedQuizList = mcqs.mapIndexed { index, mcq ->
+
+                                        SavedQuiz(
+                                            question = mcq.question,
+                                            options = mcq.options,
+                                            answer = mcq.answer,
+                                            explanation = mcq.explanation,
+                                            selectedAnswer = selectedAnswers[index]
+                                        )
+                                    }
+
+                                    val json = Gson().toJson(savedQuizList)
+
+                                    scope.launch {
+
+                                        vm.saveQuizResult(
+                                            title = vm.lastInputText.take(40),
+                                            score = score,
+                                            totalQuestions = mcqs.size,
+                                            quizJson = json
+                                        )
+                                    }
+
+                                    },
                                 enabled = selectedAnswers.size > 0
                             ) {
                                 Text("Submit Quiz")
@@ -229,7 +273,7 @@ fun QuizScreen(navController: NavController, vm: StudyViewModel) {
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Make New Quiz")
+                            Text("New Quiz")
                         }
 
                         Spacer(modifier = Modifier.height(10.dp))
@@ -240,7 +284,7 @@ fun QuizScreen(navController: NavController, vm: StudyViewModel) {
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Return to Generate Screen")
+                            Text("Go Back")
                         }
 
                         Spacer(modifier = Modifier.height(40.dp))

@@ -13,7 +13,6 @@ data class StudyHistoryEntity(
     val shortNotes: String,
     val questions: String,
     val mcqsRaw: String,
-    val mindmap: String,
     val summary: String,
     val originalInput: String,
     val createdAt: Long = System.currentTimeMillis()

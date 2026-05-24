@@ -6,8 +6,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quicknotes.data.AppDatabase
 import com.example.quicknotes.data.StudyHistoryEntity
+import com.example.quicknotes.BuildConfig
+import com.example.quicknotes.data.local.QuizHistoryEntity
 import com.google.ai.client.generativeai.GenerativeModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +28,6 @@ data class StudyNotes(
     val shortNotes: String = "",
     val importantQuestions: String = "",
     val mcqs: List<Mcq> = emptyList(),
-    val mindmapSummary: String = "",
     val summary: String = "",
     val mcqsRaw: String = ""
 )
@@ -41,8 +43,11 @@ class StudyViewModel(application: Application) : AndroidViewModel(application) {
 
     private val db = AppDatabase.getDatabase(application)
     private val dao = db.studyDao()
+    private val quizHistoryDao = db.quizHistoryDao()
 
     val historyList = dao.getAllHistory()
+
+    val quizHistoryList = quizHistoryDao.getAllQuizHistory()
 
     private val _uiState = MutableStateFlow<UiState>(UiState.Idle)
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
@@ -58,7 +63,7 @@ class StudyViewModel(application: Application) : AndroidViewModel(application) {
 
     private val generativeModel = GenerativeModel(
         modelName = "gemini-3.1-flash-lite-preview",
-        apiKey = "API_KEY"
+        apiKey = BuildConfig.API_KEY
     )
 
     fun generateStudyMaterial(input: String, educationLevel: String) {
@@ -118,11 +123,6 @@ class StudyViewModel(application: Application) : AndroidViewModel(application) {
                 
                 (repeat 10 mcqs)
                 
-                [MINDMAP]
-                - point
-                - point
-                - point
-                
                 [SUMMARY]
                 - point
                 - point
@@ -135,7 +135,7 @@ class StudyViewModel(application: Application) : AndroidViewModel(application) {
                 }
 
                 if (responseText.isBlank()) {
-                    _uiState.value = UiState.Error("Empty response received from AI.")
+                    _uiState.value = UiState.Error("Empty response received from AI. Please referesh your input.")
                 } else {
                     val notes = parseNotes(responseText)
                     _uiState.value = UiState.Success(notes)
@@ -152,7 +152,6 @@ class StudyViewModel(application: Application) : AndroidViewModel(application) {
                             shortNotes = notes.shortNotes,
                             questions = notes.importantQuestions,
                             mcqsRaw = notes.mcqsRaw,
-                            mindmap = notes.mindmapSummary,
                             summary = notes.summary,
                             originalInput = limitedInput
                         )
@@ -161,7 +160,10 @@ class StudyViewModel(application: Application) : AndroidViewModel(application) {
 
             } catch (e: Exception) {
                 Log.e("GEMINI_ERROR", "Gemini API Failed", e)
-                _uiState.value = UiState.Error(e.localizedMessage ?: "Something went wrong.")
+                _uiState.value = UiState.Error(
+                    "Server is busy. Please try again."
+                )
+//                _uiState.value = UiState.Error("Overload is detected on server , please try again later." ?: "Something went wrong.")
             }
         }
     }
@@ -379,18 +381,66 @@ class StudyViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun parseNotes(text: String): StudyNotes {
-        val mcqRaw = safeExtract(text, "[MCQS]", "[MINDMAP]")
+        val mcqRaw = safeExtract(text, "[MCQS]", "[SUMMARY]")
 
         return StudyNotes(
             shortNotes = safeExtract(text, "[SHORT NOTES]", "[QUESTIONS]"),
             importantQuestions = safeExtract(text, "[QUESTIONS]", "[MCQS]"),
             mcqs = parseMcqs(mcqRaw),
-            mindmapSummary = safeExtract(text, "[MINDMAP]", "[SUMMARY]"),
             summary = text.substringAfter("[SUMMARY]", "").trim(),
             mcqsRaw = mcqRaw
         )
     }
     fun loadHistoryNotes(notes: StudyNotes) {
         _uiState.value = UiState.Success(notes)
+    }
+
+    fun saveQuizResult(
+        title: String,
+        score: Int,
+        totalQuestions: Int,
+        quizJson: String
+    ) {
+
+        viewModelScope.launch {
+
+            quizHistoryDao.insertQuiz(
+                QuizHistoryEntity(
+                    title = title,
+                    date = System.currentTimeMillis(),
+                    score = score,
+                    totalQuestions = totalQuestions,
+                    quizJson = quizJson
+                )
+            )
+        }
+    }
+
+    fun deleteQuiz(id: Int) {
+
+        viewModelScope.launch {
+
+            quizHistoryDao.deleteQuiz(id)
+        }
+    }
+
+    fun clearQuizHistory() {
+
+        viewModelScope.launch {
+
+            quizHistoryDao.clearQuizHistory()
+        }
+    }
+
+    fun saveQuiz(quiz: QuizHistoryEntity) {
+
+        viewModelScope.launch {
+
+            quizHistoryDao.insertQuiz(quiz)
+        }
+    }
+
+    fun getQuizById(id: Int): Flow<QuizHistoryEntity?> {
+        return quizHistoryDao.getQuizById(id)
     }
 }

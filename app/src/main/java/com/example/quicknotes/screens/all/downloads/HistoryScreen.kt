@@ -6,9 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -54,8 +51,8 @@ fun HistoryScreen(navController: NavController, vm: StudyViewModel) {
     if (showClearDialog) {
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
-            title = { Text("Clear History?") },
-            text = { Text("Are you sure you want to delete all history items?") },
+            title = { Text("Delete All Notes?") },
+            text = { Text("Are you sure you want to delete all notes items?") },
             confirmButton = {
                 TextButton(onClick = {
                     vm.clearHistory()
@@ -79,9 +76,21 @@ fun HistoryScreen(navController: NavController, vm: StudyViewModel) {
             TopAppBar(
                 title = {
                     Text(
-                        "History",
+                        "Notes",
                         fontWeight = FontWeight.Bold
                     )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            navController.popBackStack()
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.baseline_arrow_back_ios_24),
+                            contentDescription = "Back"
+                        )
+                    }
                 },
                 actions = {
                     IconButton(onClick = { showClearDialog = true }) {
@@ -102,20 +111,62 @@ fun HistoryScreen(navController: NavController, vm: StudyViewModel) {
                     NavigationBarItem(
                         selected = false,
                         onClick = { navController.navigate(Routes.Generate.route) },
-                        icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                        label = { Text("Home") }
+                        icon = { Icon(painter = painterResource(R.drawable.outline_home_24), contentDescription = "Home") },
+                        label = { Text("Home") },
+                        colors = NavigationBarItemDefaults.colors(
+
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+
+                            indicatorColor = MaterialTheme.colorScheme.primary,
+
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     )
 
                     NavigationBarItem(
                         selected = true,
-                        onClick = {},
+                        onClick = { navController.navigate(Routes.History.route) },
                         icon = {
                             Icon(
-                                painter = painterResource(R.drawable.baseline_history),
-                                contentDescription = "History"
+                                painter = painterResource(R.drawable.outline_download_24),
+                                contentDescription = "Downloads"
                             )
                         },
-                        label = { Text("History") }
+                        label = { Text("Downloads") },
+                        colors = NavigationBarItemDefaults.colors(
+
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+
+                            indicatorColor = MaterialTheme.colorScheme.primary,
+
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+
+                    NavigationBarItem(
+                        selected = false,
+                        onClick = { navController.navigate(Routes.Settings.route) },
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.outline_settings_24),
+                                contentDescription = "Settings"
+                            )
+                        },
+                        label = { Text("Settings") },
+                        colors = NavigationBarItemDefaults.colors(
+
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+
+                            indicatorColor = MaterialTheme.colorScheme.primary,
+
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     )
                 }
             }
@@ -137,8 +188,18 @@ fun HistoryScreen(navController: NavController, vm: StudyViewModel) {
                     NavigationRailItem(
                         selected = false,
                         onClick = { navController.navigate(Routes.Generate.route) },
-                        icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                        label = { Text("Home") }
+                        icon = { Icon(painter = painterResource(R.drawable.outline_home_24), contentDescription = "Home") },
+                        label = { Text("Home") },
+                        colors = NavigationRailItemDefaults.colors(
+
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+
+                            indicatorColor = MaterialTheme.colorScheme.primary,
+
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     )
 
                     NavigationRailItem(
@@ -150,7 +211,43 @@ fun HistoryScreen(navController: NavController, vm: StudyViewModel) {
                                 contentDescription = "History"
                             )
                         },
-                        label = { Text("History") }
+                        label = { Text("History") },
+                        colors = NavigationRailItemDefaults.colors(
+
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+
+                            indicatorColor = MaterialTheme.colorScheme.primary,
+
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+
+                    NavigationRailItem(
+                        selected = false,
+                        onClick = {
+                            navController.navigate(Routes.Settings.route)
+                        },
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.outline_settings_24),
+                                contentDescription = "Settings"
+                            )
+                        },
+                        label = {
+                            Text("Settings")
+                        },
+                        colors = NavigationRailItemDefaults.colors(
+
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+
+                            indicatorColor = MaterialTheme.colorScheme.primary,
+
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     )
                 }
             }
@@ -178,10 +275,16 @@ fun HistoryScreen(navController: NavController, vm: StudyViewModel) {
                     }
 
                     if (history.isEmpty()) {
-                        Text(
-                            text = "No history found yet.",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+
+                            Text(
+                                text = "No downloaded notes found.",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
                     } else {
 
                         LazyColumn {
@@ -228,7 +331,7 @@ fun HistoryScreen(navController: NavController, vm: StudyViewModel) {
                                             contentAlignment = Alignment.CenterEnd
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Default.Delete,
+                                                painterResource(R.drawable.baseline_delete_24),
                                                 contentDescription = "Delete",
                                                 tint = MaterialTheme.colorScheme.onError
                                             )
