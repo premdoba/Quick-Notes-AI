@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>QuickNotes Privacy Policy</title>
+
+  <style>
+    :root {
+
+      --text: #0f172a;
+      --subtext: #475569;
+
+      --card-bg: rgba(255, 255, 255, 0.72);
+      --border: rgba(255, 255, 255, 0.35);
+
+      --primary: #06b6d4;
+      --primary-light: #67e8f9;
+
+      --shadow:
+        0 10px 40px rgba(6, 182, 212, 0.12),
+        0 4px 20px rgba(0, 0, 0, 0.08);
+
+      --bg:
+        radial-gradient(circle at top left,
+          #67e8f9 0%,
+          transparent 28%),
+
+        radial-gradient(circle at bottom right,
+          #06b6d4 0%,
+          transparent 28%),
+
+        linear-gradient(135deg,
+          #ecfeff,
+          #cffafe,
+          #f8fafc);
+    }
+
+    @media (prefers-color-scheme: dark) {
+
+      :root {
+
+        --text: #f8fafc;
+        --subtext: #cbd5e1;
+
+        --card-bg: rgba(15, 23, 42, 0.72);
+        --border: rgba(103, 232, 249, 0.08);
+
+        --shadow:
+          0 10px 40px rgba(6, 182, 212, 0.18),
+          0 4px 20px rgba(0, 0, 0, 0.30);
+
+        --bg:
+          radial-gradient(circle at top left,
+            #0891b2 0%,
+            transparent 28%),
+
+          radial-gradient(circle at bottom right,
+            #06b6d4 0%,
+            transparent 28%),
+
+          linear-gradient(135deg,
+            #020617,
+            #0f172a,
+            #082f49);
+      }
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+
+      font-family: Arial, Helvetica, sans-serif;
+
+      background: var(--bg);
+
+      color: var(--text);
+
+      min-height: 100vh;
+
+      padding: 40px 18px;
+
+      line-height: 1.8;
+
+      transition: 0.3s ease;
+    }
+
+    .container {
+
+      max-width: 950px;
+
+      margin: auto;
+
+      background: var(--card-bg);
+
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+
+      border: 1px solid var(--border);
+
+      border-radius: 30px;
+
+      padding: 50px;
+
+      box-shadow: var(--shadow);
+    }
+
+    h1 {
+
+      font-size: 48px;
+
+      line-height: 1.2;
+
+      margin-bottom: 12px;
+
+      font-weight: 800;
+
+      background: linear-gradient(135deg,
+          #0891b2,
+          #06b6d4,
+          #67e8f9);
+
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .updated {
+
+      color: var(--subtext);
+
+      margin-bottom: 30px;
+
+      font-size: 15px;
+    }
+
+    h2 {
+
+      margin-top: 40px;
+
+      margin-bottom: 14px;
+
+      font-size: 28px;
+
+      color: var(--primary);
+    }
+
+    h3 {
+
+      margin-top: 24px;
+
+      margin-bottom: 10px;
+
+      font-size: 20px;
+
+      color: var(--text);
+    }
+
+    p {
+
+      margin-bottom: 16px;
+
+      color: var(--subtext);
+
+      font-size: 16px;
+    }
+
+    ul {
+
+      margin-bottom: 20px;
+
+      padding-left: 24px;
+    }
+
+    li {
+
+      margin-bottom: 10px;
+
+      color: var(--subtext);
+    }
+
+    strong {
+      color: var(--text);
+    }
+
+    .email {
+
+      color: var(--primary);
+
+      text-decoration: none;
+
+      font-weight: bold;
+    }
+
+    .email:hover {
+      text-decoration: underline;
+    }
+
+    .footer {
+
+      margin-top: 55px;
+
+      padding-top: 24px;
+
+      border-top: 1px solid var(--border);
+
+      text-align: center;
+
+      color: var(--subtext);
+
+      font-size: 14px;
+    }
+
+    @media(max-width: 700px) {
+
+      body {
+        padding: 20px 12px;
+      }
+
+      .container {
+
+        padding: 28px 22px;
+
+        border-radius: 24px;
+      }
+
+      h1 {
+        font-size: 34px;
+      }
+
+      h2 {
+        font-size: 24px;
+      }
+
+      h3 {
+        font-size: 18px;
+      }
+
+      p,
+      li {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>Privacy Policy – QuickNotes AI</h1>
+
+    <p class="updated">
+      Last Updated: May 26, 2026
+    </p>
+
+    <p>
+      Welcome to <strong>QuickNotes AI</strong>. Your privacy is important to us.
+      This Privacy Policy explains how QuickNotes AI collects, uses, and stores
+      information when you use the app.
+    </p>
+
+    <h2>1. Information We Collect</h2>
+
+    <p>
+      QuickNotes AI may collect and process the following information:
+    </p>
+
+    <h3>User Input</h3>
+
+    <p>
+      When you use AI features in the app, you may enter:
+    </p>
+
+    <ul>
+      <li>Study prompts</li>
+      <li>Questions</li>
+      <li>Topics</li>
+      <li>Notes or text content</li>
+    </ul>
+
+    <p>
+      This information is used only to generate:
+    </p>
+
+    <ul>
+      <li>Study notes</li>
+      <li>Important questions</li>
+      <li>MCQs for practice</li>
+    </ul>
+
+    <h3>Locally Stored Data</h3>
+
+    <p>
+      QuickNotes AI stores certain data locally on your device for offline access,
+      including:
+    </p>
+
+    <ul>
+      <li>Generated notes</li>
+      <li>MCQ results</li>
+      <li>Todo tasks</li>
+      <li>Study-related content created within the app</li>
+    </ul>
+
+    <p>
+      This local data remains on your device unless you delete the app or clear
+      app data.
+    </p>
+
+    <h3>Basic Technical Information</h3>
+
+    <p>
+      The app may automatically collect limited technical information such as:
+    </p>
+
+    <ul>
+      <li>Device type</li>
+      <li>Android version</li>
+      <li>Crash logs</li>
+      <li>Performance diagnostics</li>
+    </ul>
+
+    <p>
+      This information is used to improve app stability and user experience.
+    </p>
+
+    <h2>2. How We Use Information</h2>
+
+    <p>
+      QuickNotes AI uses collected information to:
+    </p>
+
+    <ul>
+      <li>Generate AI-based study notes</li>
+      <li>Create important questions and MCQs</li>
+      <li>Save study material for offline use</li>
+      <li>Improve app performance and reliability</li>
+      <li>Provide todo and productivity features for students</li>
+    </ul>
+
+    <h2>3. AI-Generated Content</h2>
+
+    <p>
+      The app uses AI services to generate educational content based on user prompts.
+    </p>
+
+    <p>
+      Generated content:
+    </p>
+
+    <ul>
+      <li>Is automatically created by AI systems</li>
+      <li>May not always be fully accurate</li>
+      <li>Should be used for learning and practice purposes only</li>
+    </ul>
+
+    <p>
+      Users are encouraged to verify important academic information independently.
+    </p>
+
+    <h2>4. Data Storage</h2>
+
+    <p>
+      Most study content and todo data are stored locally on your device using
+      local database storage.
+    </p>
+
+    <p>
+      QuickNotes AI does not intentionally share your personal study content with
+      third parties except when necessary for AI processing.
+    </p>
+
+    <h2>5. Third-Party Services</h2>
+
+    <p>
+      QuickNotes AI may use third-party services such as:
+    </p>
+
+    <ul>
+      <li>AI APIs for content generation</li>
+      <li>Analytics or crash reporting tools</li>
+      <li>Android system services provided by Google</li>
+    </ul>
+
+    <p>
+      These services may process limited technical information as required for
+      app functionality.
+    </p>
+
+    <h2>6. Permissions</h2>
+
+    <p>
+      Depending on app features, QuickNotes AI may request permissions such as:
+    </p>
+
+    <ul>
+      <li>Internet access (for AI generation)</li>
+      <li>Notification access (for reminders or study alerts)</li>
+      <li>Storage/media access (if future features require file saving or sharing)</li>
+    </ul>
+
+    <p>
+      Permissions are used only for intended app functionality.
+    </p>
+
+    <h2>7. Children's Privacy</h2>
+
+    <p>
+      QuickNotes AI is designed for educational purposes and is not intended to
+      knowingly collect personal information from children under 13 years of age.
+    </p>
+
+    <h2>8. Data Security</h2>
+
+    <p>
+      We take reasonable steps to help protect user information and locally stored
+      study data. However, no method of electronic storage or transmission is
+      completely secure.
+    </p>
+
+    <h2>9. Changes to This Privacy Policy</h2>
+
+    <p>
+      This Privacy Policy may be updated from time to time. Any changes will be
+      reflected on this page with an updated revision date.
+    </p>
+
+    <h2>10. Contact</h2>
+
+    <p>
+      If you have any questions or concerns regarding this Privacy Policy,
+      you may contact:
+    </p>
+
+    <p>
+      Email:
+      <a class="email" href="mailto:your-email@example.com">
+        premdoba4@gmail.com
+      </a>
+    </p>
+
+    <div class="footer">
+      © 2026 Prem Doba. All rights reserved.
+    </div>
+
+  </div>
+
+</body>
+
+</html>
