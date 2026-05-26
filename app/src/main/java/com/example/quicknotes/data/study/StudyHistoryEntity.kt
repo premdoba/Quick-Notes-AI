@@ -1,4 +1,4 @@
-package com.example.quicknotes.data
+package com.example.quicknotes.data.study
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

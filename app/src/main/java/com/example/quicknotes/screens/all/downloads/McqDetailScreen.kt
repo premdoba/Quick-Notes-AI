@@ -42,13 +42,6 @@ fun McqDetailScreen(
 
     val score = mcqList.count { it.answer.trim() == it.selectedAnswer?.trim() }
 
-    val gradient = Brush.verticalGradient(
-        listOf(
-            MaterialTheme.colorScheme.background,
-            MaterialTheme.colorScheme.surface,
-            MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
-        )
-    )
 
     Scaffold(
         topBar = {
@@ -69,7 +62,7 @@ fun McqDetailScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(gradient)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(padding)
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())

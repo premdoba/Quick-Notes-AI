@@ -51,6 +51,8 @@ fun QuizScreen(navController: NavController, vm: StudyViewModel) {
 
     val selectedAnswers = remember { mutableStateMapOf<Int, String>() }
 
+    var showClearDialog by remember { mutableStateOf(false) }
+
     val gradient = Brush.verticalGradient(
         listOf(
             MaterialTheme.colorScheme.background,
@@ -69,12 +71,33 @@ fun QuizScreen(navController: NavController, vm: StudyViewModel) {
         isCorrect(mcq, selectedAnswers[index])
     }
 
+    if (showClearDialog) {
+        AlertDialog(
+            onDismissRequest = { showClearDialog = false },
+            title = { Text("Leave Quiz?") },
+            text = { Text("Are you sure you want to leave quiz? Your current progress may be lost.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    navController.popBackStack()
+                    showClearDialog = false
+                }) {
+                    Text("Leave", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearDialog = false }) {
+                    Text("Continue")
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Quiz", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = { showClearDialog = true }) {
                         Icon(
                             painter = painterResource(R.drawable.baseline_arrow_back_ios_24),
                             contentDescription = "Back"

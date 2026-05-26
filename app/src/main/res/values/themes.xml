@@ -21,7 +21,7 @@
 
         <!-- Logo -->
         <item name="windowSplashScreenAnimatedIcon">
-            @drawable/quick_notes_logo
+            @drawable/new_logo
         </item>
 
         <!-- Purple glow circle -->

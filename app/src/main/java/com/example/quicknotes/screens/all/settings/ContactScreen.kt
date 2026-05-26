@@ -1,5 +1,7 @@
 package com.example.quicknotes.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -9,11 +11,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.quicknotes.R
+import org.bouncycastle.crypto.params.Blake3Parameters.context
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,6 +32,7 @@ fun ContactUsScreen(
             MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
         )
     )
+    val context = LocalContext.current
 
     Scaffold(
 
@@ -105,19 +110,40 @@ fun ContactUsScreen(
                     )
 
                     Text(
-                        text = "Prem Doba"
+                        text = "Prem Mahesh Doba"
                     )
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
-                    Text(
-                        text = "Email",
-                        fontWeight = FontWeight.Bold
-                    )
+                    Button(
 
-                    Text(
-                        text = "premdoba4@gmail.com"
-                    )
+                        onClick = {
+
+                            val intent = Intent(
+                                Intent.ACTION_SENDTO
+                            ).apply {
+
+                                data = Uri.parse(
+                                    "mailto:premdoba4@gmail.com"
+                                )
+
+                                putExtra(
+                                    Intent.EXTRA_SUBJECT,
+                                    "QuickNotes Support"
+                                )
+                            }
+
+                            context.startActivity(intent)
+                        },
+
+                        modifier = Modifier.fillMaxWidth()
+
+                    ) {
+
+                        Text(
+                            text = "Contact Developer"
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(20.dp))
 

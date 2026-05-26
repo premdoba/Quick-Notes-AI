@@ -1,11 +1,14 @@
 package com.example.quicknotes.viewmodel
 
 import android.app.Application
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quicknotes.data.AppDatabase
-import com.example.quicknotes.data.StudyHistoryEntity
+import com.example.quicknotes.data.study.StudyHistoryEntity
 import com.example.quicknotes.BuildConfig
 import com.example.quicknotes.data.local.QuizHistoryEntity
 import com.google.ai.client.generativeai.GenerativeModel
@@ -62,7 +65,7 @@ class StudyViewModel(application: Application) : AndroidViewModel(application) {
     private val chatHistory = mutableListOf<String>()
 
     private val generativeModel = GenerativeModel(
-        modelName = "gemini-3.1-flash-lite-preview",
+        modelName = "gemini-3.5-flash",
         apiKey = BuildConfig.API_KEY
     )
 
@@ -210,6 +213,9 @@ class StudyViewModel(application: Application) : AndroidViewModel(application) {
                 Keep the language VERY EASY and simple.
                 
                 VERY IMPORTANT RULES:
+                - Here make sure u just exaplin the point
+                - No need to give questions, mcqs, etc.
+                - Just see the context and answer the question in short.
                 - Short notes must NEVER be in paragraph.
                 - Short notes must ALWAYS be in bullet points.
                 - Each bullet point should be maximum 1-2 lines.
@@ -218,7 +224,6 @@ class StudyViewModel(application: Application) : AndroidViewModel(application) {
                 - Do not use emojis.
                 - Do not add any extra headings.
                 - Output must be clean and readable.
-                - Follow the exact format strictly.
                 """.trimIndent()
 
                 val responseText = withContext(Dispatchers.IO) {
@@ -393,6 +398,24 @@ class StudyViewModel(application: Application) : AndroidViewModel(application) {
     }
     fun loadHistoryNotes(notes: StudyNotes) {
         _uiState.value = UiState.Success(notes)
+    }
+
+    fun isInternetAvailable(context: Context): Boolean {
+
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE)
+                    as ConnectivityManager
+
+        val network = connectivityManager.activeNetwork
+            ?: return false
+
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(network)
+                ?: return false
+
+        return capabilities.hasCapability(
+            NetworkCapabilities.NET_CAPABILITY_INTERNET
+        )
     }
 
     fun saveQuizResult(

@@ -1,11 +1,13 @@
 package com.example.quicknotes.ui
 
+import TodoViewModel
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
+import com.example.quicknotes.settings.SettingsViewModel
 import com.example.quicknotes.ui.screens.AiDisclaimerScreen
 import com.example.quicknotes.ui.screens.ContactUsScreen
 import com.example.quicknotes.ui.screens.DownloadsScreen
@@ -13,12 +15,15 @@ import com.example.quicknotes.viewmodel.StudyViewModel
 import com.example.quicknotes.ui.screens.GenerateScreen
 import com.example.quicknotes.ui.screens.HistoryDetailScreen
 import com.example.quicknotes.ui.screens.HistoryScreen
+import com.example.quicknotes.ui.screens.LoginTestScreen
 import com.example.quicknotes.ui.screens.McqDetailScreen
 import com.example.quicknotes.ui.screens.McqsScreen
 import com.example.quicknotes.ui.screens.PrivacyPolicyScreen
+import com.example.quicknotes.ui.screens.QuickTodoScreen
 import com.example.quicknotes.ui.screens.QuizScreen
 import com.example.quicknotes.ui.screens.SettingsScreen
 import com.example.quicknotes.ui.screens.TermsConditionsScreen
+import com.google.firebase.auth.FirebaseAuth
 
 sealed class Routes(val route: String) {
     object Generate : Routes("generate")
@@ -29,6 +34,8 @@ sealed class Routes(val route: String) {
     object Contact : Routes("contact")
     object Terms : Routes("terms")
     object AiDisclaimer : Routes("disclaimer")
+    object QuickTodo : Routes("todo")
+    object Login : Routes ("login")
     object McqDetail: Routes("mcq_detail/{id}") {
         fun createRoute(id: Int) = "mcq_detail/$id"
     }
@@ -40,11 +47,22 @@ sealed class Routes(val route: String) {
 }
 
 @Composable
-fun AppNavigation(navController: NavHostController, vm: StudyViewModel) {
-    NavHost(navController = navController, startDestination = Routes.Generate.route) {
+fun AppNavigation(navController: NavHostController, vm: StudyViewModel, todoVM: TodoViewModel, settinsVM: SettingsViewModel) {
+    NavHost(navController = navController,
+        startDestination =
+        if (FirebaseAuth.getInstance().currentUser != null)
+            Routes.Generate.route
+        else
+            Routes.Login.route
+    )
+    {
 
         composable(Routes.Generate.route) {
-            GenerateScreen(navController, vm)
+            GenerateScreen(navController, vm, settinsVM)
+        }
+
+        composable(Routes.Login.route) {
+            LoginTestScreen(navController)
         }
 
         composable(Routes.Quiz.route) {
@@ -53,6 +71,10 @@ fun AppNavigation(navController: NavHostController, vm: StudyViewModel) {
 
         composable(Routes.Downloads.route) {
             DownloadsScreen(navController)
+        }
+
+        composable(Routes.QuickTodo.route) {
+            QuickTodoScreen(navController, todoVM)
         }
 
         composable(Routes.Mcqs.route) {
@@ -75,7 +97,7 @@ fun AppNavigation(navController: NavHostController, vm: StudyViewModel) {
             ContactUsScreen(navController)
         }
         composable(Routes.Settings.route) {
-            SettingsScreen(navController, vm)
+            SettingsScreen(navController, settinsVM, vm)
         }
 
         composable(Routes.Privacy.route) {

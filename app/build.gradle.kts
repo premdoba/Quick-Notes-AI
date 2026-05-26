@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    id("com.google.gms.google-services")
 }
 
 // Load local.properties
@@ -81,6 +82,7 @@ dependencies {
 
     implementation(libs.generativeai)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.ui)
 
     testImplementation(libs.junit)
 
@@ -116,4 +118,13 @@ dependencies {
 
     //gson to store quiz data
     implementation("com.google.code.gson:gson:2.10.1")
+
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
+
+    implementation("com.google.firebase:firebase-auth-ktx")
+
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 }

@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomAppBar
@@ -39,12 +41,14 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -64,8 +68,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.quicknotes.R
+import com.example.quicknotes.settings.SettingsViewModel
 import com.example.quicknotes.ui.Routes
 import com.example.quicknotes.viewmodel.StudyViewModel
 import com.example.quicknotes.viewmodel.UiState
@@ -76,7 +82,7 @@ import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
+fun GenerateScreen(navController: NavController, vm: StudyViewModel, settingsVm: SettingsViewModel) {
 
     val context = navController.context
 
@@ -95,8 +101,17 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
 
     var inputText by remember { mutableStateOf("") }
 
-    var levelText by remember { mutableStateOf("") }
-    var mcqDifficulty by remember { mutableStateOf("") }
+    val defaultEducation by settingsVm.education.collectAsState()
+
+    val defaultMcq by settingsVm.mcq.collectAsState()
+
+    var levelText by remember(defaultEducation) {
+        mutableStateOf(defaultEducation)
+    }
+
+    var mcqDifficulty by remember(defaultMcq) {
+        mutableStateOf(defaultMcq)
+    }
 
     var fabExpanded by remember { mutableStateOf(false) }
 
@@ -104,6 +119,21 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
     var doubtAnswer by remember { mutableStateOf("") }
 
     val state by vm.uiState.collectAsState()
+
+    val notificationPermissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { }
+
+    LaunchedEffect(Unit) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+
+            notificationPermissionLauncher.launch(
+                android.Manifest.permission.POST_NOTIFICATIONS
+            )
+        }
+    }
 
     LaunchedEffect(state) {
         when (state) {
@@ -294,6 +324,28 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
 
                     NavigationBarItem(
                         selected = false,
+                        onClick = { navController.navigate(Routes.QuickTodo.route) },
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.baseline_checklist_24),
+                                contentDescription = "QuickTodo"
+                            )
+                        },
+                        label = { Text("Todo") },
+                        colors = NavigationBarItemDefaults.colors(
+
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+
+                            indicatorColor = MaterialTheme.colorScheme.primary,
+
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+
+                    NavigationBarItem(
+                        selected = false,
                         onClick = { navController.navigate(Routes.Settings.route) },
                         icon = {
                             Icon(
@@ -361,6 +413,28 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
                             )
                         },
                         label = { Text("History") },
+                        colors = NavigationRailItemDefaults.colors(
+
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+
+                            indicatorColor = MaterialTheme.colorScheme.primary,
+
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+
+                    NavigationRailItem(
+                        selected = false,
+                        onClick = { navController.navigate(Routes.QuickTodo.route) },
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.baseline_checklist_24),
+                                contentDescription = "QuickTodo"
+                            )
+                        },
+                        label = { Text("Todo") },
                         colors = NavigationRailItemDefaults.colors(
 
                             selectedIconColor = MaterialTheme.colorScheme.onPrimary,
@@ -453,7 +527,8 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
                             OutlinedTextField(
                                 value = inputText,
                                 onValueChange = { inputText = it },
-                                label = { Text("Paste Notes / Topic") },
+                                label = { Text("Enter Topic") },
+                                placeholder = {Text("eg. Photosynthesis, Rotational Motion, etc.")},
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(160.dp),
@@ -650,6 +725,11 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
                                         value = doubtText,
                                         onValueChange = { doubtText = it },
                                         label = { Text("Ask your question") },
+                                        keyboardOptions = KeyboardOptions(
+                                            imeAction = ImeAction.Done
+                                        ),
+                                        placeholder = { Text("eg. give me an example.") },
+
                                         modifier = Modifier.fillMaxWidth(),
                                         shape = RoundedCornerShape(14.dp)
                                     )
@@ -715,7 +795,12 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel) {
 
                         is UiState.Error -> {
 
-                            val msg = "Please use a strong internet connection."
+                            val msg =
+                                if (!vm.isInternetAvailable(context)) {
+                                    "No internet connection detected. Please check your network and try again."
+                                } else {
+                                    "We're receiving too many requests right now. Please try again after some time."
+                                }
 
                             Card(
                                 modifier = Modifier
@@ -823,33 +908,77 @@ fun EducationLevelDropdown(
 
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
+        onExpandedChange = {
+            expanded = !expanded
+        }
     ) {
 
         OutlinedTextField(
             value = selectedValue,
             onValueChange = {},
             readOnly = true,
-            label = { Text(label) },
+
+            label = {
+                Text(label)
+            },
+
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
+
             modifier = Modifier
                 .fillMaxWidth()
                 .menuAnchor(),
+
             shape = RoundedCornerShape(14.dp),
-            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+
+            colors = OutlinedTextFieldDefaults.colors(
+
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+
+                focusedLabelColor = MaterialTheme.colorScheme.primary,
+                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+
+                cursorColor = MaterialTheme.colorScheme.primary
+            )
         )
 
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+
+            onDismissRequest = {
+                expanded = false
+            },
+
+            modifier = Modifier.background(
+                MaterialTheme.colorScheme.surface,
+                RoundedCornerShape(14.dp)
+            )
         ) {
 
             options.forEach { option ->
 
                 DropdownMenuItem(
-                    text = { Text(option) },
+
+                    text = {
+
+                        Text(
+                            text = option,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    },
+
+                    colors = MenuDefaults.itemColors(
+                        textColor = MaterialTheme.colorScheme.onSurface
+                    ),
+
                     onClick = {
                         onSelected(option)
                         expanded = false

@@ -149,6 +149,28 @@ fun HistoryScreen(navController: NavController, vm: StudyViewModel) {
 
                     NavigationBarItem(
                         selected = false,
+                        onClick = { navController.navigate(Routes.QuickTodo.route) },
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.baseline_checklist_24),
+                                contentDescription = "QuickTodo"
+                            )
+                        },
+                        label = { Text("Todo") },
+                        colors = NavigationBarItemDefaults.colors(
+
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+
+                            indicatorColor = MaterialTheme.colorScheme.primary,
+
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+
+                    NavigationBarItem(
+                        selected = false,
                         onClick = { navController.navigate(Routes.Settings.route) },
                         icon = {
                             Icon(
@@ -212,6 +234,28 @@ fun HistoryScreen(navController: NavController, vm: StudyViewModel) {
                             )
                         },
                         label = { Text("History") },
+                        colors = NavigationRailItemDefaults.colors(
+
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+
+                            indicatorColor = MaterialTheme.colorScheme.primary,
+
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+
+                    NavigationRailItem(
+                        selected = false,
+                        onClick = { navController.navigate(Routes.QuickTodo.route) },
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.baseline_checklist_24),
+                                contentDescription = "QuickTodo"
+                            )
+                        },
+                        label = { Text("Todo") },
                         colors = NavigationRailItemDefaults.colors(
 
                             selectedIconColor = MaterialTheme.colorScheme.onPrimary,

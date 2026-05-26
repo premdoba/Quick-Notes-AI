@@ -1,5 +1,6 @@
 package com.example.quicknotes.ui.screens
 
+import android.R.attr.text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -85,43 +86,194 @@ fun AiDisclaimerScreen(
                 ) {
 
                     Text(
-                        text = "AI Generated Content",
+                        text = "AI Generated Content Disclaimer",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(18.dp))
 
                     Text(
                         text =
-                            "QuickNotes AI uses artificial intelligence to generate notes, summaries, questions, and quizzes."
+                            "QuickNotes AI uses artificial intelligence to generate educational content such as notes, summaries, important questions, explanations, and MCQs based on user prompts.",
+                        style = MaterialTheme.typography.bodyMedium
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // SECTION 1
 
                     Text(
-                        text =
-                            "AI-generated content may sometimes contain incomplete, outdated, or incorrect information."
+                        text = "1. AI Content Accuracy",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     Text(
                         text =
-                            "Users should verify important educational or factual information from trusted sources."
+                            "Although the app aims to provide useful and high-quality educational material, AI-generated content may occasionally contain:"
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(text = "• Incorrect information")
+                    Text(text = "• Incomplete explanations")
+                    Text(text = "• Outdated facts")
+                    Text(text = "• Misleading answers")
+                    Text(text = "• Formatting or logical mistakes")
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // SECTION 2
+
+                    Text(
+                        text = "2. Educational Assistance Only",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     Text(
                         text =
-                            "QuickNotes AI is intended as a study assistant and not as a replacement for professional educational guidance."
+                            "QuickNotes AI is intended to assist students with studying, revision, brainstorming, and practice preparation."
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text =
+                            "The app should not be considered a replacement for teachers, professional educational guidance, official textbooks, or verified academic resources."
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // SECTION 3
+
+                    Text(
+                        text = "3. User Responsibility",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text =
+                            "Users are responsible for reviewing and verifying important information before using it in:"
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(text = "• Exams")
+                    Text(text = "• Assignments")
+                    Text(text = "• Academic submissions")
+                    Text(text = "• Professional or real-world applications")
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // SECTION 4
+
+                    Text(
+                        text = "4. Dynamic AI Responses",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text =
+                            "AI-generated responses may vary over time. The same prompt can produce different notes, MCQs, or explanations on different occasions."
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // SECTION 5
+
+                    Text(
+                        text = "5. MCQ & Quiz Disclaimer",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text =
+                            "MCQs and quizzes generated by the app are created automatically using AI systems and are intended for self-practice purposes only."
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text =
+                            "Users should independently confirm answers and explanations where accuracy is important."
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // SECTION 6
+
+                    Text(
+                        text = "6. Service Limitations",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text =
+                            "AI services may occasionally experience delays, incomplete responses, or temporary unavailability depending on internet connection and external AI systems."
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // SECTION 7
+
+                    Text(
+                        text = "7. Responsible Usage",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text =
+                            "Users are encouraged to use AI responsibly and avoid relying solely on generated content for critical decisions."
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
 
                     Text(
-                        text = "Use AI responsibly.",
+                        text = "8. Younger Users",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text =
+                            "Younger students should use AI-generated educational content with guidance from parents, guardians, or teachers whenever possible."
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Text(
+                        text = "Use AI responsibly and verify important information.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.SemiBold

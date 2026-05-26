@@ -1,5 +1,7 @@
 package com.example.quicknotes.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,25 +19,42 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.quicknotes.R
+import com.example.quicknotes.settings.SettingsViewModel
 import com.example.quicknotes.ui.Routes
 import com.example.quicknotes.viewmodel.StudyViewModel
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.auth.FirebaseAuth
+import org.bouncycastle.crypto.params.Blake3Parameters.context
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     navController: NavController,
-    vm: StudyViewModel
+    vm: SettingsViewModel,
+    vm2: StudyViewModel
 ) {
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
 
+    var showClearDialog by remember { mutableStateOf(false) }
+
     val isTablet = screenWidth >= 600
+    val context = LocalContext.current
+
+    val googleSignInClient = remember {
+        GoogleSignIn.getClient(
+            context,
+            GoogleSignInOptions.DEFAULT_SIGN_IN
+        )
+    }
 
     val paddingSize = if (isTablet) 32.dp else 16.dp
 
@@ -69,16 +88,38 @@ fun SettingsScreen(
         "Dark"
     )
 
-    var selectedEducationLevel by remember {
-        mutableStateOf("Graduation")
-    }
+    val selectedEducationLevel by vm.education.collectAsState()
 
-    var selectedMcqLevel by remember {
-        mutableStateOf("Medium")
-    }
+    val selectedMcqLevel by vm.mcq.collectAsState()
 
-    var selectedTheme by remember {
-        mutableStateOf("Auto")
+    val selectedTheme by vm.theme.collectAsState()
+
+    if (showClearDialog) {
+        AlertDialog(
+            onDismissRequest = { showClearDialog = false },
+            title = { Text("Logout?") },
+            text = { Text("Are you sure you want to logout?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    FirebaseAuth.getInstance().signOut()
+                    googleSignInClient.signOut()
+
+                    navController.navigate(Routes.Login.route) {
+                        popUpTo(0)
+                        launchSingleTop = true
+                    }
+
+                    showClearDialog = false
+                }) {
+                    Text("Logout", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -169,6 +210,28 @@ fun SettingsScreen(
                             Text("Downloads")
                         },
 
+                        colors = NavigationBarItemDefaults.colors(
+
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+
+                            indicatorColor = MaterialTheme.colorScheme.primary,
+
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+
+                    NavigationBarItem(
+                        selected = false,
+                        onClick = { navController.navigate(Routes.QuickTodo.route) },
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.baseline_checklist_24),
+                                contentDescription = "QuickTodo"
+                            )
+                        },
+                        label = { Text("Todo") },
                         colors = NavigationBarItemDefaults.colors(
 
                             selectedIconColor = MaterialTheme.colorScheme.onPrimary,
@@ -291,6 +354,28 @@ fun SettingsScreen(
                     )
 
                     NavigationRailItem(
+                        selected = false,
+                        onClick = { navController.navigate(Routes.QuickTodo.route) },
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.baseline_checklist_24),
+                                contentDescription = "QuickTodo"
+                            )
+                        },
+                        label = { Text("Todo") },
+                        colors = NavigationRailItemDefaults.colors(
+
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+
+                            indicatorColor = MaterialTheme.colorScheme.primary,
+
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+
+                    NavigationRailItem(
 
                         selected = true,
 
@@ -341,34 +426,46 @@ fun SettingsScreen(
                     SettingsDropdownItem(
                         title = "Default Education Level",
                         subtitle = "Used automatically while generating notes",
+
                         options = educationLevels,
+
                         selectedValue = selectedEducationLevel,
+
                         onSelected = {
-                            selectedEducationLevel = it
+
+                            vm.saveEducation(it)
                         }
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(18.dp))
 
                     SettingsDropdownItem(
                         title = "Default MCQ Difficulty",
                         subtitle = "Preferred difficulty for generated quizzes",
+
                         options = mcqLevels,
+
                         selectedValue = selectedMcqLevel,
+
                         onSelected = {
-                            selectedMcqLevel = it
+
+                            vm.saveMcq(it)
                         }
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(18.dp))
 
                     SettingsDropdownItem(
                         title = "App Theme",
                         subtitle = "Auto uses your device theme",
+
                         options = themeOptions,
+
                         selectedValue = selectedTheme,
+
                         onSelected = {
-                            selectedTheme = it
+
+                            vm.saveTheme(it)
                         }
                     )
 
@@ -381,7 +478,11 @@ fun SettingsScreen(
                         title = "Privacy Policy",
                         subtitle = "Learn how your data is handled",
                         onClick = {
-                            navController.navigate(Routes.Privacy.route)
+                            val intent = Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://premdoba.github.io/Quick-Notes-AI/")
+                            )
+                            context.startActivity(intent)
                         }
                     )
 
@@ -422,6 +523,23 @@ fun SettingsScreen(
                         subtitle = "Support us on Play Store",
                         onClick = {
 
+                        }
+                    )
+
+                    SettingsSectionTitle("Account")
+
+                    val googleSignInClient = GoogleSignIn.getClient(
+                        context,
+                        GoogleSignInOptions.DEFAULT_SIGN_IN
+                    )
+
+                    SettingsItem(
+                        icon = painterResource(R.drawable.baseline_logout_24),
+                        title = "Logout",
+                        subtitle = "Sign out from your account",
+
+                        onClick = {
+                            showClearDialog = true
                         }
                     )
 
@@ -638,26 +756,61 @@ fun SettingsDropdownItem(
                     onValueChange = {},
                     readOnly = true,
 
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(
+                            expanded = expanded
+                        )
+                    },
+
                     modifier = Modifier
                         .menuAnchor()
                         .fillMaxWidth(),
 
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(16.dp),
+
+                    colors = OutlinedTextFieldDefaults.colors(
+
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+
+                        cursorColor = MaterialTheme.colorScheme.primary
+                    )
                 )
 
                 ExposedDropdownMenu(
                     expanded = expanded,
+
                     onDismissRequest = {
                         expanded = false
-                    }
+                    },
+
+                    modifier = Modifier.background(
+                        MaterialTheme.colorScheme.surface,
+                        RoundedCornerShape(16.dp)
+                    )
                 ) {
 
                     options.forEach { option ->
 
                         DropdownMenuItem(
+
                             text = {
-                                Text(option)
+
+                                Text(
+                                    text = option,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
                             },
+
+                            colors = MenuDefaults.itemColors(
+                                textColor = MaterialTheme.colorScheme.onSurface
+                            ),
 
                             onClick = {
                                 onSelected(option)
