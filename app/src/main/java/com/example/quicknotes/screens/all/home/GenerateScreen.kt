@@ -2,7 +2,6 @@ package com.example.quicknotes.ui.screens
 
 import android.Manifest
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -24,7 +23,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomAppBar
@@ -68,7 +66,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.quicknotes.R
 import com.example.quicknotes.settings.SettingsViewModel
@@ -154,37 +151,46 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel, settingsVm:
         )
     )
 
-    val photoFile = remember {
-        File.createTempFile("camera_photo_", ".jpg", context.cacheDir)
-    }
-
-    val cameraImageUri = remember {
-        FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.provider",
-            photoFile
-        )
+    var cameraImageUri by remember {
+        mutableStateOf<Uri?>(null)
     }
 
     val cameraLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.TakePicture()
+        ) { success ->
+
             if (success) {
-                selectedImageUri = cameraImageUri
-
-                extractTextFromImage(cameraImageUri, context) { extractedText ->
-                    inputText = extractedText
+                cameraImageUri?.let { uri ->
+                    extractTextFromImage(uri, context) { text ->
+                        inputText = text
+                    }
+                } ?: run {
+                    inputText = "URI missing"
                 }
+            } else {
+                inputText = "Camera capture failed"
             }
         }
 
-    val cameraPermissionLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (granted) {
-                cameraLauncher.launch(cameraImageUri)
-            } else {
-                inputText = "Camera Permission Denied!"
-            }
-        }
+
+
+//    val cameraPermissionLauncher =
+//        rememberLauncherForActivityResult(
+//            ActivityResultContracts.RequestPermission()
+//        ) { granted ->
+//
+//            if (granted) {
+//
+//                cameraImageUri?.let {
+//                    cameraLauncher.launch(it)
+//                }
+//
+//            } else {
+//
+//                inputText = "Camera Permission Denied!"
+//            }
+//        }
 
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -253,10 +259,30 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel, settingsVm:
                         ) {
 
                             MiniFabButton("Camera", R.drawable.camera) {
-                                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+
+                                try {
+
+                                    val photoFile = File(
+                                        context.cacheDir,
+                                        "camera_${System.currentTimeMillis()}.jpg"
+                                    )
+
+                                    cameraImageUri = FileProvider.getUriForFile(
+                                        context,
+                                        "${context.packageName}.provider",
+                                        photoFile
+                                    )
+
+
+                                    cameraLauncher.launch(cameraImageUri!!)
+
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    inputText = "Camera error: ${e.message}"
+                                }
+
                                 fabExpanded = false
                             }
-
                             MiniFabButton("Gallery", R.drawable.baseline_image) {
                                 galleryPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
                                 fabExpanded = false
@@ -997,25 +1023,40 @@ fun extractTextFromImage(
 
     try {
 
-        val inputStream = context.contentResolver.openInputStream(uri)
-        val bitmap = BitmapFactory.decodeStream(inputStream)
-
-        val image = InputImage.fromBitmap(bitmap, 0)
+        val image = InputImage.fromFilePath(
+            context,
+            uri
+        )
 
         val recognizer = TextRecognition.getClient(
             TextRecognizerOptions.DEFAULT_OPTIONS
         )
 
         recognizer.process(image)
+
             .addOnSuccessListener { visionText ->
-                onResult(visionText.text)
+
+                if (visionText.text.isBlank()) {
+
+                    onResult("No text detected")
+
+                } else {
+
+                    onResult(visionText.text)
+                }
             }
+
             .addOnFailureListener { e ->
-                onResult("OCR Failed To Extract Text: Please try again after some time")
+
+                e.printStackTrace()
+
+                onResult("OCR Failed: ${e.message}")
             }
 
     } catch (e: Exception) {
 
-        onResult("Not able to convert your file to text")
+        e.printStackTrace()
+
+        onResult("Error: ${e.message}")
     }
 }

@@ -124,12 +124,12 @@ fun ContactUsScreen(
                             ).apply {
 
                                 data = Uri.parse(
-                                    "mailto:premdoba4@gmail.com"
+                                    "mailto:aiquicknotes@gmail.com"
                                 )
 
                                 putExtra(
                                     Intent.EXTRA_SUBJECT,
-                                    "QuickNotes Support"
+                                    "QuickNotes AI Support"
                                 )
                             }
 

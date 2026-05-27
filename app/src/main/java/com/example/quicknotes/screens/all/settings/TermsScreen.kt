@@ -171,7 +171,32 @@ fun TermsConditionsScreen(
                     // SECTION 4
 
                     Text(
-                        text = "4. Local Data Storage",
+                        text = "4. User Accounts",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text =
+                            "Some features of QuickNotes AI may require users to create an account using email and password authentication."
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text =
+                            "Users are responsible for maintaining the confidentiality of their login credentials and activities performed under their account."
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // SECTION 5
+
+                    Text(
+                        text = "5. Local Data Storage",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -193,10 +218,10 @@ fun TermsConditionsScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // SECTION 5
+                    // SECTION 6
 
                     Text(
-                        text = "5. Service Availability",
+                        text = "6. Service Availability",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -206,15 +231,22 @@ fun TermsConditionsScreen(
 
                     Text(
                         text =
-                            "Some app features may require an internet connection, especially AI-related services. We do not guarantee uninterrupted availability of all services at all times."
+                            "Some app features may require an internet connection, especially AI-based services. OCR (text extraction) and AI processing may depend on device performance and external services."
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text =
+                            "Certain features may rely on third-party services such as authentication providers and AI APIs."
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // SECTION 6
+                    // SECTION 7
 
                     Text(
-                        text = "6. Updates & Changes",
+                        text = "7. Updates & Changes",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -236,10 +268,10 @@ fun TermsConditionsScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // SECTION 7
+                    // SECTION 8
 
                     Text(
-                        text = "7. Limitation of Liability",
+                        text = "8. Limitation of Liability",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -254,10 +286,10 @@ fun TermsConditionsScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // SECTION 8
+                    // SECTION 9
 
                     Text(
-                        text = "8. Contact",
+                        text = "9. Contact",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -267,10 +299,45 @@ fun TermsConditionsScreen(
 
                     Text(
                         text =
-                            "For support, questions, or feedback regarding these terms, users may contact the developer through the Contact Us section inside the application."
+                            "For support, account-related requests, data deletion requests, questions, or feedback regarding these terms, users may contact the developer through the Contact Us section inside the application."
                     )
 
                     Spacer(modifier = Modifier.height(28.dp))
+
+                    // SECTION 10
+
+                    Text(
+                        text = "10. Camera, Images & Document Usage",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text =
+                            "QuickNotes AI allows users to capture images using the camera, select images from the gallery, and upload PDF documents for educational purposes."
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text =
+                            "These inputs are processed only for extracting text and generating study-related content within the app."
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text =
+                            "• Camera and gallery images are used only for OCR (text extraction)\n" +
+                                    "• PDF files are used only for generating notes and summaries\n" +
+                                    "• No image or document data is used for advertising or tracking\n" +
+                                    "• Processing may be performed using on-device or third-party services"
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
 
                     Text(
                         text = "Last Updated: May 2026",

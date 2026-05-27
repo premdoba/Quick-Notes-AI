@@ -22,6 +22,7 @@ import com.example.quicknotes.ui.screens.PrivacyPolicyScreen
 import com.example.quicknotes.ui.screens.QuickTodoScreen
 import com.example.quicknotes.ui.screens.QuizScreen
 import com.example.quicknotes.ui.screens.SettingsScreen
+import com.example.quicknotes.ui.screens.SignupScreen
 import com.example.quicknotes.ui.screens.TermsConditionsScreen
 import com.google.firebase.auth.FirebaseAuth
 
@@ -32,6 +33,7 @@ sealed class Routes(val route: String) {
     object Mcqs : Routes("mcqs")
     object Privacy : Routes("privacy")
     object Contact : Routes("contact")
+    object Signup : Routes("signup")
     object Terms : Routes("terms")
     object AiDisclaimer : Routes("disclaimer")
     object QuickTodo : Routes("todo")
@@ -63,6 +65,10 @@ fun AppNavigation(navController: NavHostController, vm: StudyViewModel, todoVM: 
 
         composable(Routes.Login.route) {
             LoginTestScreen(navController)
+        }
+
+        composable(Routes.Signup.route) {
+            SignupScreen(navController)
         }
 
         composable(Routes.Quiz.route) {

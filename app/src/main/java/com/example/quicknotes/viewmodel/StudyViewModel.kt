@@ -65,7 +65,7 @@ class StudyViewModel(application: Application) : AndroidViewModel(application) {
     private val chatHistory = mutableListOf<String>()
 
     private val generativeModel = GenerativeModel(
-        modelName = "gemini-3.5-flash",
+        modelName = "gemini-2.5-flash",
         apiKey = BuildConfig.API_KEY
     )
 

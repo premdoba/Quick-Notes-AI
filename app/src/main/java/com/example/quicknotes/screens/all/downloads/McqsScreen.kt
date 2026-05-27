@@ -186,7 +186,7 @@ fun McqsScreen(
 
                     NavigationBarItem(
                         selected = true,
-                        onClick = {},
+                        onClick = {navController.navigate(Routes.Downloads.route)},
                         icon = {
                             Icon(
                                 painter = painterResource(R.drawable.outline_download_24),

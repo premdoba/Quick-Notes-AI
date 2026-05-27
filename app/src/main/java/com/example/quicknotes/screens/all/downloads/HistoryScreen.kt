@@ -127,7 +127,7 @@ fun HistoryScreen(navController: NavController, vm: StudyViewModel) {
 
                     NavigationBarItem(
                         selected = true,
-                        onClick = { navController.navigate(Routes.History.route) },
+                        onClick = { navController.navigate(Routes.Downloads.route) },
                         icon = {
                             Icon(
                                 painter = painterResource(R.drawable.outline_download_24),

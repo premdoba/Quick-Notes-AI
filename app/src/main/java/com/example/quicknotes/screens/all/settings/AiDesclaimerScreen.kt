@@ -241,7 +241,32 @@ fun AiDisclaimerScreen(
                     // SECTION 7
 
                     Text(
-                        text = "7. Responsible Usage",
+                        text = "7. Account & Authentication",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text =
+                            "Some features of QuickNotes AI may require users to create an account using email and password authentication."
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text =
+                            "Users are responsible for maintaining the confidentiality of their login credentials and account access."
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // SECTION 8
+
+                    Text(
+                        text = "8. Responsible Usage",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -256,8 +281,10 @@ fun AiDisclaimerScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
+                    // SECTION 9
+
                     Text(
-                        text = "8. Younger Users",
+                        text = "9. Younger Users",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -268,6 +295,41 @@ fun AiDisclaimerScreen(
                     Text(
                         text =
                             "Younger students should use AI-generated educational content with guidance from parents, guardians, or teachers whenever possible."
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // SECTION 10
+
+                    Text(
+                        text = "10. Image, Camera & Document Processing",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text =
+                            "QuickNotes AI allows users to capture images using the camera, select images from the gallery, and import PDF documents for study purposes."
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text =
+                            "These inputs may be processed using on-device text recognition (OCR) to extract readable text for generating notes and study material."
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text =
+                            "• Images are used only for text extraction and study-related features\n" +
+                                    "• Camera and gallery content are not used for tracking or advertising\n" +
+                                    "• Processing is performed only to generate educational content\n" +
+                                    "• PDF content is used only for note generation inside the app"
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
