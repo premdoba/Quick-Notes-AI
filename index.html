@@ -348,6 +348,12 @@
       <li>Performance diagnostics</li>
     </ul>
 
+    <h3>Document (PDF) Input</h3>
+
+<p>
+When users upload PDF files, the app may access and process document content locally to generate study material.
+</p>
+
     <p>
       This information is used to improve app stability and user experience.
     </p>
@@ -386,6 +392,23 @@
       Users are encouraged to verify important academic information independently.
     </p>
 
+    <h2>3.1 Image and Camera Data Usage</h2>
+
+<p>
+QuickNotes AI allows users to capture or upload images to extract text using on-device OCR technology.
+</p>
+
+<ul>
+  <li>Images selected from gallery or camera are processed only for text extraction</li>
+  <li>Image data is not uploaded or stored on external servers (unless explicitly added in future updates)</li>
+  <li>OCR processing is performed using on-device ML Kit services</li>
+  <li>Extracted text is used only inside the app for note generation and study features</li>
+</ul>
+
+<p>
+Users remain in full control of images they capture or upload.
+</p>
+
     <h2>4. Data Storage</h2>
 
 <p>
@@ -396,6 +419,10 @@
 <p>
   Account-related information such as email addresses may be securely processed
   and stored through authentication services used by QuickNotes AI.
+</p>
+
+    <p>
+Images used for OCR processing are temporarily processed and are not permanently stored by the app.
 </p>
 
 <p>
@@ -415,7 +442,9 @@
   <li>AI APIs for content generation</li>
   <li>Analytics or crash reporting tools</li>
   <li>Android system services provided by Google</li>
+  <li>Google ML Kit (for on-device text recognition from images)</li>
 </ul>
+    
 
 <p>
   These services may process limited technical or account-related information
@@ -425,17 +454,19 @@
    <h2>6. Permissions</h2>
 
 <p>
-  Depending on app features, QuickNotes AI may request permissions such as:
+QuickNotes AI may request the following permissions depending on features used:
 </p>
 
 <ul>
-  <li>Internet access (for login, AI generation, and syncing features)</li>
-  <li>Notification access (for reminders or study alerts)</li>
-  <li>Storage/media access (if future features require file saving or sharing)</li>
+  <li><strong>Camera</strong> – to capture images for text extraction using OCR</li>
+  <li><strong>Photos / Media Access</strong> – to select images from gallery for processing</li>
+  <li><strong>File Access (PDF)</strong> – to allow users to import PDF documents</li>
+  <li><strong>Internet access</strong> – for AI features and authentication</li>
+  <li><strong>Notifications</strong> – for reminders and alerts</li>
 </ul>
 
 <p>
-  Permissions are used only for intended app functionality.
+These permissions are used only for the stated app functionality and are not used for background tracking or unrelated purposes.
 </p>
 
     <h2>7. Children's Privacy</h2>
@@ -469,8 +500,8 @@
 
     <p>
       Email:
-      <a class="email" href="mailto:premdoba4@gmail.com">
-        premdoba4@gmail.com
+      <a class="email" href="mailto:aiquicknotes@gmail.com">
+        aiquicknotes@gmail.com
       </a>
     </p>
 
