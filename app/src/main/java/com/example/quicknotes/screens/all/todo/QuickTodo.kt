@@ -2,6 +2,7 @@ package com.example.quicknotes.ui.screens
 
 import TodoViewModel
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,6 +48,10 @@ fun QuickTodoScreen(
     val isTablet = configuration.screenWidthDp >= 600
     val paddingSize = if (isTablet) 32.dp else 14.dp
     val maxContentWidth = 720.dp
+
+    var selectedReminderTime by remember {
+        mutableStateOf<Long?>(null)
+    }
 
     val gradient = Brush.verticalGradient(
         listOf(
@@ -138,14 +144,14 @@ fun QuickTodoScreen(
                         label = { Text("Home") },
                         colors = NavigationBarItemDefaults.colors(
 
-                                selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
 
-                        indicatorColor = MaterialTheme.colorScheme.primary,
+                            indicatorColor = MaterialTheme.colorScheme.primary,
 
-                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     )
 
                     NavigationBarItem(
@@ -372,25 +378,122 @@ fun QuickTodoScreen(
                     onDismissRequest = { showDialog = false },
                     title = { Text("Add New Task") },
                     text = {
-                        OutlinedTextField(
-                            value = title,
-                            onValueChange = { title = it },
-                            label = { Text("Task title") }
-                        )
+
+                        Column {
+
+                            OutlinedTextField(
+                                value = title,
+                                onValueChange = { title = it },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                label = {
+                                    Text("Task title")
+                                }
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            OutlinedButton(
+                                onClick = {
+
+                                    val calendar = java.util.Calendar.getInstance()
+
+                                    android.app.DatePickerDialog(
+                                        navController.context,
+                                        { _, year, month, day ->
+
+                                            android.app.TimePickerDialog(
+                                                navController.context,
+                                                { _, hour, minute ->
+
+                                                    calendar.set(
+                                                        year,
+                                                        month,
+                                                        day,
+                                                        hour,
+                                                        minute
+                                                    )
+
+                                                    selectedReminderTime =
+                                                        calendar.timeInMillis
+
+                                                },
+                                                calendar.get(java.util.Calendar.HOUR_OF_DAY),
+                                                calendar.get(java.util.Calendar.MINUTE),
+                                                false
+                                            ).show()
+
+                                        },
+                                        calendar.get(java.util.Calendar.YEAR),
+                                        calendar.get(java.util.Calendar.MONTH),
+                                        calendar.get(java.util.Calendar.DAY_OF_MONTH)
+                                    ).show()
+
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                border = BorderStroke(
+                                    1.5.dp,
+                                    Color(0xFF00D9FF)
+                                ),
+
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                )
+                            ) {
+
+                                Text(
+                                    if (selectedReminderTime != null)
+                                        "Reminder Added"
+                                    else
+                                        "Set Reminder"
+                                )
+                            }
+
+                            if (selectedReminderTime != null) {
+
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                Text(
+                                    text = java.text.SimpleDateFormat(
+                                        "dd MMM yyyy, hh:mm a",
+                                        java.util.Locale.getDefault()
+                                    ).format(java.util.Date(selectedReminderTime!!)),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
                     },
                     confirmButton = {
-                        Button(onClick = {
-                            if (title.isNotBlank()) {
-                                vm.insert(TodoEntity(title = title))
-                                title = ""
-                                showDialog = false
+
+                        Button(
+                            onClick = {
+
+                                if (title.isNotBlank()) {
+
+                                    val todo = TodoEntity(
+                                        title = title,
+                                        reminderTime = selectedReminderTime
+                                    )
+
+                                    vm.insert(todo)
+
+                                    title = ""
+                                    selectedReminderTime = null
+                                    showDialog = false
+                                }
+
                             }
-                        }) {
+                        ) {
                             Text("Add")
                         }
                     },
                     dismissButton = {
-                        TextButton(onClick = { showDialog = false }) {
+
+                        TextButton(
+                            onClick = {
+                                showDialog = false
+                            }
+                        ) {
                             Text("Cancel")
                         }
                     }
@@ -441,14 +544,14 @@ fun TodoCard(
                 )
             }
 
-                Icon(
-                    painter = painterResource(R.drawable.baseline_check_24),
-                    contentDescription = "Toggle",
-                    tint = if (todo.completed)
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.onSurface
-                )
+            Icon(
+                painter = painterResource(R.drawable.baseline_check_24),
+                contentDescription = "Toggle",
+                tint = if (todo.completed)
+                    MaterialTheme.colorScheme.primary
+                else
+                    MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }

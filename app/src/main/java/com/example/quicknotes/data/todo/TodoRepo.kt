@@ -9,8 +9,8 @@ class TodoRepository(
 
     val allTodos = dao.getAllTodos()
 
-    suspend fun insert(todo: TodoEntity) {
-        dao.insertTodo(todo)
+    suspend fun insert(todo: TodoEntity): Long {
+        return dao.insertTodo(todo)
     }
 
     suspend fun update(todo: TodoEntity) {

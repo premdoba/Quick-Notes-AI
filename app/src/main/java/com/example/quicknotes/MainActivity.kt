@@ -1,6 +1,9 @@
 package com.example.quicknotes
 
 import TodoViewModel
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,6 +25,8 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
 
         super.onCreate(savedInstanceState)
+
+        createNotificationChannel()
 
         setContent {
 
@@ -55,6 +60,25 @@ class MainActivity : ComponentActivity() {
                     settingViewModel
                 )
             }
+        }
+    }
+    private fun createNotificationChannel() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            val channel = NotificationChannel(
+                "todo_reminder_channel",
+                "Todo Reminders",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+
+                description = "Reminder notifications for tasks"
+            }
+
+            val notificationManager =
+                getSystemService(NotificationManager::class.java)
+
+            notificationManager.createNotificationChannel(channel)
         }
     }
 }

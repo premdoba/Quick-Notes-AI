@@ -56,6 +56,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -75,6 +76,7 @@ import com.example.quicknotes.viewmodel.UiState
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import kotlinx.coroutines.launch
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -151,46 +153,74 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel, settingsVm:
         )
     )
 
-    var cameraImageUri by remember {
-        mutableStateOf<Uri?>(null)
+    var cameraImageUriString by rememberSaveable {
+        mutableStateOf<String?>(null)
     }
+
+    val cameraImageUri =
+        cameraImageUriString?.let {
+            Uri.parse(it)
+        }
 
     val cameraLauncher =
         rememberLauncherForActivityResult(
             ActivityResultContracts.TakePicture()
         ) { success ->
 
-            if (success) {
-                cameraImageUri?.let { uri ->
-                    extractTextFromImage(uri, context) { text ->
-                        inputText = text
-                    }
-                } ?: run {
-                    inputText = "URI missing"
+            if (success && cameraImageUri != null) {
+
+                extractTextFromImage(
+                    cameraImageUri!!,
+                    context
+                ) { text ->
+
+                    inputText = text
                 }
+
             } else {
+
                 inputText = "Camera capture failed"
             }
         }
 
+    val cameraPermissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { granted ->
+
+            if (granted) {
+
+                try {
+
+                    val photoFile = File(
+                        context.cacheDir,
+                        "camera_${System.currentTimeMillis()}.jpg"
+                    )
+
+                    val uri = FileProvider.getUriForFile(
+                        context,
+                        "${context.packageName}.provider",
+                        photoFile
+                    )
+
+                    cameraImageUriString = uri.toString()
+
+                    cameraLauncher.launch(uri)
+
+                } catch (e: Exception) {
+
+                    e.printStackTrace()
+
+                    inputText = "Camera Error: Please try again later once issue is solved"
+                }
+
+            } else {
+
+                inputText = "Camera permission denied"
+            }
+        }
 
 
-//    val cameraPermissionLauncher =
-//        rememberLauncherForActivityResult(
-//            ActivityResultContracts.RequestPermission()
-//        ) { granted ->
-//
-//            if (granted) {
-//
-//                cameraImageUri?.let {
-//                    cameraLauncher.launch(it)
-//                }
-//
-//            } else {
-//
-//                inputText = "Camera Permission Denied!"
-//            }
-//        }
 
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -216,7 +246,9 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel, settingsVm:
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             if (uri != null) {
                 selectedPdfUri = uri
-                inputText = "Selected PDF: $uri"
+                extractTextFromPdf(uri, context) { text ->
+                    inputText = text
+                }
             }
         }
 
@@ -260,31 +292,27 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel, settingsVm:
 
                             MiniFabButton("Camera", R.drawable.camera) {
 
-                                try {
-
-                                    val photoFile = File(
-                                        context.cacheDir,
-                                        "camera_${System.currentTimeMillis()}.jpg"
-                                    )
-
-                                    cameraImageUri = FileProvider.getUriForFile(
-                                        context,
-                                        "${context.packageName}.provider",
-                                        photoFile
-                                    )
-
-
-                                    cameraLauncher.launch(cameraImageUri!!)
-
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                    inputText = "Camera error: ${e.message}"
-                                }
+                                cameraPermissionLauncher.launch(
+                                    Manifest.permission.CAMERA
+                                )
 
                                 fabExpanded = false
                             }
                             MiniFabButton("Gallery", R.drawable.baseline_image) {
-                                galleryPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+
+                                    galleryPermissionLauncher.launch(
+                                        Manifest.permission.READ_MEDIA_IMAGES
+                                    )
+
+                                } else {
+
+                                    galleryPermissionLauncher.launch(
+                                        Manifest.permission.READ_EXTERNAL_STORAGE
+                                    )
+                                }
+
                                 fabExpanded = false
                             }
 
@@ -1036,14 +1064,13 @@ fun extractTextFromImage(
 
             .addOnSuccessListener { visionText ->
 
-                if (visionText.text.isBlank()) {
-
-                    onResult("No text detected")
-
-                } else {
-
-                    onResult(visionText.text)
-                }
+                onResult(
+                    if (visionText.text.isBlank()) {
+                        "No text detected"
+                    } else {
+                        visionText.text
+                    }
+                )
             }
 
             .addOnFailureListener { e ->
@@ -1058,5 +1085,86 @@ fun extractTextFromImage(
         e.printStackTrace()
 
         onResult("Error: ${e.message}")
+    }
+}
+fun extractTextFromPdf(
+    uri: Uri,
+    context: Context,
+    onResult: (String) -> Unit
+) {
+
+    try {
+
+        val fileDescriptor =
+            context.contentResolver.openFileDescriptor(uri, "r")
+
+        val pdfRenderer =
+            android.graphics.pdf.PdfRenderer(
+                fileDescriptor!!
+            )
+
+        val recognizer =
+            TextRecognition.getClient(
+                TextRecognizerOptions.DEFAULT_OPTIONS
+            )
+
+        val finalText = StringBuilder()
+
+        for (i in 0 until pdfRenderer.pageCount) {
+
+            val page = pdfRenderer.openPage(i)
+
+            val bitmap = android.graphics.Bitmap.createBitmap(
+                page.width,
+                page.height,
+                android.graphics.Bitmap.Config.ARGB_8888
+            )
+
+            page.render(
+                bitmap,
+                null,
+                null,
+                android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
+            )
+
+            val image = InputImage.fromBitmap(bitmap, 0)
+
+            recognizer.process(image)
+
+                .addOnSuccessListener { visionText ->
+
+                    finalText.append("\n")
+                    finalText.append(visionText.text)
+
+                    if (i == pdfRenderer.pageCount - 1) {
+
+                        onResult(
+                            if (finalText.isBlank()) {
+                                "No text found in PDF"
+                            } else {
+                                finalText.toString()
+                            }
+                        )
+
+                        pdfRenderer.close()
+                        fileDescriptor.close()
+                    }
+                }
+
+                .addOnFailureListener { e ->
+
+                    e.printStackTrace()
+
+                    onResult("PDF OCR Failed: ${e.message}")
+                }
+
+            page.close()
+        }
+
+    } catch (e: Exception) {
+
+        e.printStackTrace()
+
+        onResult("PDF Error: ${e.message}")
     }
 }
