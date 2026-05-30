@@ -1,7 +1,7 @@
 package com.example.quicknotes.ui.screens
 
-import TodoViewModel
-import androidx.compose.animation.AnimatedVisibility
+import androidx.activity.compose.BackHandler
+import com.example.quicknotes.viewmodel.TodoViewModel
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,10 +23,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.quicknotes.data.local.TodoEntity
+import com.example.quicknotes.domain.model.Todo
 import com.example.quicknotes.R
 import com.example.quicknotes.ui.Routes
-import kotlinx.coroutines.launch
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,24 +34,16 @@ fun QuickTodoScreen(
     navController: NavController,
     vm: TodoViewModel = viewModel()
 ) {
-
     val todos by vm.todos.collectAsState(initial = emptyList())
-
-    var fabExpanded by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     var showClearDialog by remember { mutableStateOf(false) }
     var title by remember { mutableStateOf("") }
-
-    val scope = rememberCoroutineScope()
+    var selectedReminderTime by remember { mutableStateOf<Long?>(null) }
 
     val configuration = LocalConfiguration.current
     val isTablet = configuration.screenWidthDp >= 600
     val paddingSize = if (isTablet) 32.dp else 14.dp
     val maxContentWidth = 720.dp
-
-    var selectedReminderTime by remember {
-        mutableStateOf<Long?>(null)
-    }
 
     val gradient = Brush.verticalGradient(
         listOf(
@@ -82,8 +74,16 @@ fun QuickTodoScreen(
         )
     }
 
-    Scaffold(
+    BackHandler {
+        navController.navigate(Routes.Generate.route) {
+            popUpTo(navController.graph.startDestinationId) {
+                inclusive = false
+            }
+            launchSingleTop = true
+        }
+    }
 
+    Scaffold(
         topBar = {
             TopAppBar(
                 title = {
@@ -107,36 +107,20 @@ fun QuickTodoScreen(
                 }
             )
         },
-
         floatingActionButton = {
-            Column(
-                horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+            FloatingActionButton(
+                onClick = { showDialog = true },
+                containerColor = MaterialTheme.colorScheme.primary
             ) {
-
-                AnimatedVisibility(fabExpanded) {
-                    MiniFabButton("New Task", R.drawable.baseline_add_24) {
-                        showDialog = true
-                        fabExpanded = false
-                    }
-                }
-
-                FloatingActionButton(
-                    onClick = { showDialog = true },
-                    containerColor = MaterialTheme.colorScheme.primary
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.baseline_add_24),
-                        contentDescription = "Add"
-                    )
-                }
+                Icon(
+                    painter = painterResource(R.drawable.baseline_add_24),
+                    contentDescription = "Add"
+                )
             }
         },
-
         bottomBar = {
             if (!isTablet) {
                 BottomAppBar {
-
                     NavigationBarItem(
                         selected = false,
                         onClick = { navController.navigate(Routes.Generate.route) },
@@ -152,8 +136,8 @@ fun QuickTodoScreen(
                             unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                             unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                    )
 
+                    )
                     NavigationBarItem(
                         selected = false,
                         onClick = { navController.navigate(Routes.Downloads.route) },
@@ -170,7 +154,6 @@ fun QuickTodoScreen(
                             unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     )
-
                     NavigationBarItem(
                         selected = true,
                         onClick = { },
@@ -187,7 +170,6 @@ fun QuickTodoScreen(
                             unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     )
-
                     NavigationBarItem(
                         selected = false,
                         onClick = { navController.navigate(Routes.Settings.route) },
@@ -207,21 +189,15 @@ fun QuickTodoScreen(
                 }
             }
         }
-
     ) { padding ->
-
         Row(
             modifier = Modifier
                 .fillMaxSize()
                 .background(gradient)
                 .padding(padding)
         ) {
-
             if (isTablet) {
-                NavigationRail(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ) {
-
+                NavigationRail {
                     NavigationRailItem(
                         selected = false,
                         onClick = { navController.navigate(Routes.Generate.route) },
@@ -238,7 +214,6 @@ fun QuickTodoScreen(
                             unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     )
-
                     NavigationRailItem(
                         selected = false,
                         onClick = { navController.navigate(Routes.Downloads.route) },
@@ -255,7 +230,6 @@ fun QuickTodoScreen(
                             unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     )
-
                     NavigationRailItem(
                         selected = true,
                         onClick = { },
@@ -272,7 +246,6 @@ fun QuickTodoScreen(
                             unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     )
-
                     NavigationRailItem(
                         selected = false,
                         onClick = { navController.navigate(Routes.Settings.route) },
@@ -299,33 +272,14 @@ fun QuickTodoScreen(
                     .widthIn(max = maxContentWidth),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
-                if (todos.isNotEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp),
-                        contentAlignment = Alignment.TopCenter
-                    ) {
-                        Text(
-                            "Tip: Swipe left to delete a task.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        )
-                    }
-                }
-
                 if (todos.isEmpty()) {
                     EmptyTodoState()
                 } else {
-
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
-
                         items(todos, key = { it.id }) { todo ->
-
                             val dismissState = rememberSwipeToDismissBoxState(
                                 confirmValueChange = {
                                     if (it == SwipeToDismissBoxValue.EndToStart) {
@@ -334,7 +288,6 @@ fun QuickTodoScreen(
                                     } else false
                                 }
                             )
-
                             SwipeToDismissBox(
                                 state = dismissState,
                                 enableDismissFromStartToEnd = false,
@@ -355,7 +308,6 @@ fun QuickTodoScreen(
                                     }
                                 }
                             ) {
-
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -366,7 +318,6 @@ fun QuickTodoScreen(
                                         onToggle = { vm.toggleTodo(todo) }
                                     )
                                 }
-
                             }
                         }
                     }
@@ -378,122 +329,75 @@ fun QuickTodoScreen(
                     onDismissRequest = { showDialog = false },
                     title = { Text("Add New Task") },
                     text = {
-
                         Column {
-
                             OutlinedTextField(
                                 value = title,
                                 onValueChange = { title = it },
                                 modifier = Modifier.fillMaxWidth(),
                                 singleLine = true,
-                                label = {
-                                    Text("Task title")
-                                }
+                                label = { Text("Task title") }
                             )
-
                             Spacer(modifier = Modifier.height(16.dp))
-
                             OutlinedButton(
                                 onClick = {
-
-                                    val calendar = java.util.Calendar.getInstance()
-
+                                    val currentCalendar = Calendar.getInstance()
                                     android.app.DatePickerDialog(
                                         navController.context,
                                         { _, year, month, day ->
-
                                             android.app.TimePickerDialog(
                                                 navController.context,
                                                 { _, hour, minute ->
-
-                                                    calendar.set(
-                                                        year,
-                                                        month,
-                                                        day,
-                                                        hour,
-                                                        minute
-                                                    )
-
-                                                    selectedReminderTime =
-                                                        calendar.timeInMillis
-
+                                                    val calendar = Calendar.getInstance()
+                                                    calendar.set(Calendar.YEAR, year)
+                                                    calendar.set(Calendar.MONTH, month)
+                                                    calendar.set(Calendar.DAY_OF_MONTH, day)
+                                                    calendar.set(Calendar.HOUR_OF_DAY, hour)
+                                                    calendar.set(Calendar.MINUTE, minute)
+                                                    calendar.set(Calendar.SECOND, 0)
+                                                    calendar.set(Calendar.MILLISECOND, 0)
+                                                    
+                                                    if (calendar.timeInMillis > System.currentTimeMillis()) {
+                                                        selectedReminderTime = calendar.timeInMillis
+                                                    } else {
+                                                        // Show error or notify user that time must be in future
+                                                    }
                                                 },
-                                                calendar.get(java.util.Calendar.HOUR_OF_DAY),
-                                                calendar.get(java.util.Calendar.MINUTE),
+                                                currentCalendar.get(Calendar.HOUR_OF_DAY),
+                                                currentCalendar.get(Calendar.MINUTE),
                                                 false
                                             ).show()
-
                                         },
-                                        calendar.get(java.util.Calendar.YEAR),
-                                        calendar.get(java.util.Calendar.MONTH),
-                                        calendar.get(java.util.Calendar.DAY_OF_MONTH)
+                                        currentCalendar.get(Calendar.YEAR),
+                                        currentCalendar.get(Calendar.MONTH),
+                                        currentCalendar.get(Calendar.DAY_OF_MONTH)
                                     ).show()
-
                                 },
-                                modifier = Modifier.fillMaxWidth(),
-                                border = BorderStroke(
-                                    1.5.dp,
-                                    Color(0xFF00D9FF)
-                                ),
-
+                                border = BorderStroke(1.5.dp, Color(0xFF00D9FF)),
                                 colors = ButtonDefaults.outlinedButtonColors(
                                     containerColor = MaterialTheme.colorScheme.surface
-                                )
+                                ),
+                                modifier = Modifier.fillMaxWidth()
                             ) {
-
-                                Text(
-                                    if (selectedReminderTime != null)
-                                        "Reminder Added"
-                                    else
-                                        "Set Reminder"
-                                )
-                            }
-
-                            if (selectedReminderTime != null) {
-
-                                Spacer(modifier = Modifier.height(12.dp))
-
-                                Text(
-                                    text = java.text.SimpleDateFormat(
-                                        "dd MMM yyyy, hh:mm a",
-                                        java.util.Locale.getDefault()
-                                    ).format(java.util.Date(selectedReminderTime!!)),
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
+                                Text(if (selectedReminderTime != null) "Reminder Added" else "Set Reminder")
                             }
                         }
                     },
                     confirmButton = {
-
                         Button(
                             onClick = {
-
                                 if (title.isNotBlank()) {
-
-                                    val todo = TodoEntity(
-                                        title = title,
-                                        reminderTime = selectedReminderTime
-                                    )
-
-                                    vm.insert(todo)
-
+                                    vm.insert(Todo(title = title, reminderTime = selectedReminderTime))
                                     title = ""
                                     selectedReminderTime = null
                                     showDialog = false
                                 }
-
                             }
                         ) {
                             Text("Add")
                         }
                     },
                     dismissButton = {
-
-                        TextButton(
-                            onClick = {
-                                showDialog = false
-                            }
-                        ) {
+                        TextButton(onClick = { showDialog = false }) {
                             Text("Cancel")
                         }
                     }
@@ -504,53 +408,35 @@ fun QuickTodoScreen(
 }
 
 @Composable
-fun TodoCard(
-    todo: TodoEntity,
-    onToggle: () -> Unit
-) {
-
+fun TodoCard(todo: Todo, onToggle: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth()
-            .clickable(onClick = {onToggle()}),
+        modifier = Modifier.fillMaxWidth().clickable { onToggle() },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(6.dp)
     ) {
-
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             Column(modifier = Modifier.weight(1f)) {
-
                 Text(
                     text = todo.title,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = if (todo.completed)
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.onSurface
+                    color = if (todo.completed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                 )
-
                 Text(
                     text = if (todo.completed) "Completed" else "Pending",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
             }
-
             Icon(
                 painter = painterResource(R.drawable.baseline_check_24),
                 contentDescription = "Toggle",
-                tint = if (todo.completed)
-                    MaterialTheme.colorScheme.primary
-                else
-                    MaterialTheme.colorScheme.onSurface
+                tint = if (todo.completed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -558,7 +444,6 @@ fun TodoCard(
 
 @Composable
 fun EmptyTodoState() {
-
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,

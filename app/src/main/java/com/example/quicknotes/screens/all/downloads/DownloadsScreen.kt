@@ -1,5 +1,6 @@
 package com.example.quicknotes.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -37,8 +38,17 @@ fun DownloadsScreen(navController: NavController) {
             MaterialTheme.colorScheme.primary.copy(alpha = 0.18f)
         )
     )
+    BackHandler {
+        navController.navigate(Routes.Generate.route) {
+            popUpTo(navController.graph.startDestinationId) {
+                inclusive = false
+            }
+            launchSingleTop = true
+        }
+    }
 
     Scaffold(
+
 
         topBar = {
             TopAppBar(

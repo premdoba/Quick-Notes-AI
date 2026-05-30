@@ -418,6 +418,9 @@ fun McqsScreen(
                                 items = quizHistory,
                                 key = { item -> item.id }
                             ) { item ->
+                                var deleteHandled by remember(item.id) {
+                                    mutableStateOf(false)
+                                }
 
                                 val dismissState =
                                     rememberSwipeToDismissBoxState(
@@ -425,10 +428,12 @@ fun McqsScreen(
                                         confirmValueChange = { value ->
 
                                             if (value ==
-                                                SwipeToDismissBoxValue.EndToStart
+                                                SwipeToDismissBoxValue.EndToStart &&
+                                                !deleteHandled
                                             ) {
 
                                                 vm.deleteQuiz(item.id)
+                                                deleteHandled = true
 
                                                 scope.launch {
 
@@ -443,8 +448,7 @@ fun McqsScreen(
                                                         result ==
                                                         SnackbarResult.ActionPerformed
                                                     ) {
-
-                                                        vm.saveQuiz(item)
+                                                        vm.saveQuiz(item.copy(id = 0))
                                                     }
                                                 }
 

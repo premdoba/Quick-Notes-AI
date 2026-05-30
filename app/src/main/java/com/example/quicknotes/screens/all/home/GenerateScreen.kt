@@ -1,9 +1,11 @@
 package com.example.quicknotes.ui.screens
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.net.Uri
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -62,6 +64,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -111,6 +114,8 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel, settingsVm:
     var mcqDifficulty by remember(defaultMcq) {
         mutableStateOf(defaultMcq)
     }
+
+    val lcontext = LocalContext.current
 
     var fabExpanded by remember { mutableStateOf(false) }
 
@@ -251,6 +256,12 @@ fun GenerateScreen(navController: NavController, vm: StudyViewModel, settingsVm:
                 }
             }
         }
+
+    val activity = context as? Activity
+
+    BackHandler {
+        activity?.finish()
+    }
 
     Scaffold(
         topBar = {

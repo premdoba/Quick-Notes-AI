@@ -233,7 +233,7 @@
 
                                     Toast.makeText(
                                         context,
-                                        it.exception?.message ?: "Login Failed",
+                                        "Login Failed",
                                         Toast.LENGTH_LONG
                                     ).show()
                                 }

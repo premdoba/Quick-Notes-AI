@@ -333,13 +333,18 @@ fun HistoryScreen(navController: NavController, vm: StudyViewModel) {
 
                         LazyColumn {
                             items(history, key = { it.id }) { item ->
+                                var deleteHandled by remember(item.id) {
+                                    mutableStateOf(false)
+                                }
 
                                 val dismissState = rememberSwipeToDismissBoxState(
                                     confirmValueChange = { value ->
-                                        if (value == SwipeToDismissBoxValue.EndToStart) {
+                                        if (value == SwipeToDismissBoxValue.EndToStart &&
+                                            !deleteHandled
+                                            ) {
 
                                             vm.deleteHistoryItem(item.id)
-
+                                            deleteHandled = true
                                             scope.launch {
                                                 val result = snackbarHostState.showSnackbar(
                                                     message = "Deleted",
@@ -348,7 +353,9 @@ fun HistoryScreen(navController: NavController, vm: StudyViewModel) {
                                                 )
 
                                                 if (result == SnackbarResult.ActionPerformed) {
-                                                    vm.insertHistoryItem(item)
+                                                    vm.insertHistoryItem(
+                                                        item.copy(id = 0)
+                                                    )
                                                 }
                                             }
 

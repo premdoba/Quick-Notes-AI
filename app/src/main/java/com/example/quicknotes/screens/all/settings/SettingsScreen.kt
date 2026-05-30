@@ -2,6 +2,7 @@ package com.example.quicknotes.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -121,6 +122,15 @@ fun SettingsScreen(
                 }
             }
         )
+    }
+
+    BackHandler {
+        navController.navigate(Routes.Generate.route) {
+            popUpTo(navController.graph.startDestinationId) {
+                inclusive = false
+            }
+            launchSingleTop = true
+        }
     }
 
     Scaffold(

@@ -1,6 +1,5 @@
 package com.example.quicknotes.ui
 
-import TodoViewModel
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -12,13 +11,13 @@ import com.example.quicknotes.ui.screens.AiDisclaimerScreen
 import com.example.quicknotes.ui.screens.ContactUsScreen
 import com.example.quicknotes.ui.screens.DownloadsScreen
 import com.example.quicknotes.viewmodel.StudyViewModel
+import com.example.quicknotes.viewmodel.TodoViewModel
 import com.example.quicknotes.ui.screens.GenerateScreen
 import com.example.quicknotes.ui.screens.HistoryDetailScreen
 import com.example.quicknotes.ui.screens.HistoryScreen
 import com.example.quicknotes.ui.screens.LoginTestScreen
 import com.example.quicknotes.ui.screens.McqDetailScreen
 import com.example.quicknotes.ui.screens.McqsScreen
-import com.example.quicknotes.ui.screens.PrivacyPolicyScreen
 import com.example.quicknotes.ui.screens.QuickTodoScreen
 import com.example.quicknotes.ui.screens.QuizScreen
 import com.example.quicknotes.ui.screens.SettingsScreen
@@ -31,7 +30,6 @@ sealed class Routes(val route: String) {
     object Downloads : Routes("downloads")
     object History : Routes("history")
     object Mcqs : Routes("mcqs")
-    object Privacy : Routes("privacy")
     object Contact : Routes("contact")
     object Signup : Routes("signup")
     object Terms : Routes("terms")
@@ -104,10 +102,6 @@ fun AppNavigation(navController: NavHostController, vm: StudyViewModel, todoVM: 
         }
         composable(Routes.Settings.route) {
             SettingsScreen(navController, settinsVM, vm)
-        }
-
-        composable(Routes.Privacy.route) {
-            PrivacyPolicyScreen(navController)
         }
 
         composable(Routes.AiDisclaimer.route) {

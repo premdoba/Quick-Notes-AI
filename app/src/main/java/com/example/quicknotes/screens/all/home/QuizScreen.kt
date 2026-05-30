@@ -6,6 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -15,8 +16,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.quicknotes.R
-import com.example.quicknotes.data.model.SavedQuiz
-import com.example.quicknotes.viewmodel.Mcq
+import com.example.quicknotes.domain.model.Mcq
+import com.example.quicknotes.domain.model.SavedQuiz
 import com.example.quicknotes.viewmodel.StudyViewModel
 import com.example.quicknotes.viewmodel.UiState
 import com.google.gson.Gson
@@ -46,10 +47,12 @@ fun QuizScreen(navController: NavController, vm: StudyViewModel) {
     val notes = (state as UiState.Success).notes
     val mcqs = notes.mcqs
 
-    var currentIndex by remember { mutableStateOf(0) }
-    var submitted by remember { mutableStateOf(false) }
+    var currentIndex by rememberSaveable { mutableStateOf(0) }
+    var submitted by rememberSaveable { mutableStateOf(false) }
 
-    val selectedAnswers = remember { mutableStateMapOf<Int, String>() }
+    var selectedAnswers by rememberSaveable {
+        mutableStateOf<Map<Int, String>>(emptyMap())
+    }
 
     var showClearDialog by remember { mutableStateOf(false) }
 
@@ -127,6 +130,12 @@ fun QuizScreen(navController: NavController, vm: StudyViewModel) {
 
                     val mcq = mcqs[currentIndex]
 
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState())
+                    ) {
+
                     Text(
                         text = "Question ${currentIndex + 1} / ${mcqs.size}",
                         style = MaterialTheme.typography.titleMedium,
@@ -154,7 +163,8 @@ fun QuizScreen(navController: NavController, vm: StudyViewModel) {
                             RadioButton(
                                 selected = selectedAnswers[currentIndex] == option,
                                 onClick = {
-                                    selectedAnswers[currentIndex] = option
+                                    selectedAnswers =
+                                        selectedAnswers + (currentIndex to option)
                                 }
                             )
 
@@ -190,30 +200,30 @@ fun QuizScreen(navController: NavController, vm: StudyViewModel) {
                                 onClick =
                                     {
 
-                                    submitted = true
+                                        submitted = true
 
-                                    val savedQuizList = mcqs.mapIndexed { index, mcq ->
+                                        val savedQuizList = mcqs.mapIndexed { index, mcq ->
 
-                                        SavedQuiz(
-                                            question = mcq.question,
-                                            options = mcq.options,
-                                            answer = mcq.answer,
-                                            explanation = mcq.explanation,
-                                            selectedAnswer = selectedAnswers[index]
-                                        )
-                                    }
+                                            SavedQuiz(
+                                                question = mcq.question,
+                                                options = mcq.options,
+                                                answer = mcq.answer,
+                                                explanation = mcq.explanation,
+                                                selectedAnswer = selectedAnswers[index]
+                                            )
+                                        }
 
-                                    val json = Gson().toJson(savedQuizList)
+                                        val json = Gson().toJson(savedQuizList)
 
-                                    scope.launch {
+                                        scope.launch {
 
-                                        vm.saveQuizResult(
-                                            title = vm.lastInputText.take(40),
-                                            score = score,
-                                            totalQuestions = mcqs.size,
-                                            quizJson = json
-                                        )
-                                    }
+                                            vm.saveQuizResult(
+                                                title = vm.lastInputText.take(40),
+                                                score = score,
+                                                totalQuestions = mcqs.size,
+                                                quizJson = json
+                                            )
+                                        }
 
                                     },
                                 enabled = selectedAnswers.size > 0
@@ -222,6 +232,7 @@ fun QuizScreen(navController: NavController, vm: StudyViewModel) {
                             }
                         }
                     }
+                }
                 } else {
 
                     Column(

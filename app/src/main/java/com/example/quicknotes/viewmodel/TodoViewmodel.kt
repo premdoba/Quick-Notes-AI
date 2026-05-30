@@ -1,11 +1,13 @@
+package com.example.quicknotes.viewmodel
+
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quicknotes.data.AppDatabase
-import com.example.quicknotes.data.local.TodoEntity
-import com.example.quicknotes.notifications.ReminderScheduler
-import com.example.quicknotes.repository.TodoRepository
+import com.example.quicknotes.data.repository.TodoRepositoryImpl
+import com.example.quicknotes.domain.model.Todo
+import com.example.quicknotes.domain.repository.TodoRepository
+import com.example.quicknotes.notification.ReminderScheduler
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -17,22 +19,18 @@ class TodoViewModel(
     private val dao =
         AppDatabase.getDatabase(application).todoDao()
 
-    private val repo = TodoRepository(dao)
+    private val repo: TodoRepository = TodoRepositoryImpl(dao)
 
-    val todos = repo.allTodos.stateIn(
+    val todos = repo.getAllTodos().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
 
-    fun insert(todo: TodoEntity) {
-
+    fun insert(todo: Todo) {
         viewModelScope.launch {
-
-            val insertedId = repo.insert(todo)
-
+            val insertedId = repo.insertTodo(todo)
             todo.reminderTime?.let { reminderTime ->
-
                 ReminderScheduler.scheduleReminder(
                     context = getApplication<Application>(),
                     taskId = insertedId.toInt(),
@@ -43,15 +41,15 @@ class TodoViewModel(
         }
     }
 
-    fun delete(todo: TodoEntity) {
+    fun delete(todo: Todo) {
         viewModelScope.launch {
-            repo.delete(todo)
+            repo.deleteTodo(todo)
         }
     }
 
-    fun toggleTodo(todo: TodoEntity) {
+    fun toggleTodo(todo: Todo) {
         viewModelScope.launch {
-            repo.update(
+            repo.updateTodo(
                 todo.copy(completed = !todo.completed)
             )
         }
@@ -63,7 +61,7 @@ class TodoViewModel(
 
     fun clearAll() {
         viewModelScope.launch {
-            repo.clearAll()
+            repo.clearAllTodos()
         }
     }
 }
